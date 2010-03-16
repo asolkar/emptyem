@@ -1,0 +1,5 @@
+content	emptyem	content/
+locale	emptyem	en-US	locale/en-US/
+skin	emptyem	classic/1.0	skin/
+overlay	chrome://messenger/content/messenger.xul	chrome://emptyem/content/thunderbirdOverlay.xul
+style	chrome://global/content/customizeToolbar.xul	chrome://emptyem/skin/overlay.css

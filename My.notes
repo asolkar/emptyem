@@ -1,0 +1,8 @@
+Server traversal example at:
+  http://mxr.mozilla.org/comm-central/source/mail/base/content/mailWindowOverlay.js#1092
+
+Get folders with flags example at:
+  http://mxr.mozilla.org/comm-central/source/mail/base/content/mailWindowOverlay.js#1064
+
+Flags listed at:
+  http://mxr.mozilla.org/comm-central/source/mailnews/base/public/nsMsgFolderFlags.idl#42

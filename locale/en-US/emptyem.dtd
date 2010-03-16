@@ -1,0 +1,5 @@
+<!ENTITY emptyem.label "Empty Junk &amp; Trash">
+<!ENTITY emptyemContext.label "Empty all Junk &amp; Trash folders">
+<!ENTITY emptyemContext.accesskey "E">
+<!ENTITY emptyemToolbar.label "Empty Junk &amp; Trash">
+<!ENTITY emptyemToolbar.tooltip "Empty all Junk &amp; Trash folders">
