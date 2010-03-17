@@ -4,7 +4,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>emptyem@mahesh.asolkar</em:id>
     <em:name>Empty 'em</em:name>
-    <em:version>1.0</em:version>
+    <em:version>0.1</em:version>
     <em:creator>Mahesh Asolkar</em:creator>
     <em:description>Empty Junk and Trash folders easily</em:description>
     <em:homepageURL>http://emptyem.mahesha.com</em:homepageURL>

@@ -42,7 +42,7 @@
 <groupbox align="center" orient="horizontal">
 <vbox>
   <text value="Empty 'em" style="font-weight: bold; font-size: x-large;"/>
-  <text value="&version; 1.0"/>
+  <text value="&version; 0.1"/>
   <separator class="thin"/>
   <text value="&createdBy;" style="font-weight: bold;"/>
   <text value="Mahesh Asolkar"/>

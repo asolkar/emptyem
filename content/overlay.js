@@ -35,7 +35,10 @@
  * ***** END LICENSE BLOCK ***** */
 
 var emptyem = {
-  onLoad: function() {
+  prefs: null,
+  override_delete_confirm: false,
+
+  startup: function() {
     // initialization code
     this.initialized = true;
     this.strings = document.getElementById("emptyem-strings");
@@ -43,21 +46,73 @@ var emptyem = {
             .addEventListener("popupshowing", function(e) { this.showContextMenu(e); }, false);
   },
 
+  observe: function(subject, topic, data)
+  {
+    if (topic != "nsPref:changed")
+    {
+      return;
+    }
+ 
+    switch(data)
+    {
+      case "override_delete_confirm":
+        this.override_delete_confirm = this.prefs.getBoolPref("override_delete_confirm");
+        Application.console.log("Folder delete override changed: "
+                                + this.override_delete_confirm);
+        break;
+    }
+  },
+
   showContextMenu: function(event) {
     // show or hide the menuitem based on what the context menu is on
     // see http://kb.mozillazine.org/Adding_items_to_menus
     document.getElementById("context-emptyem").hidden = (GetNumSelectedMessages() > 0);
   },
+  //
+  // Following function borrowed from:
+  //   http://mxr.mozilla.org/comm-central/source/mail/base/content/folderPane.js#2216
+  //
+  _checkConfirmationPrompt: function ftc_confirm(aCommand) {
+    const Cc = Components.classes;
+    const Ci = Components.interfaces;
+    var showPrompt = true;
+    try {
+      var pref = Cc["@mozilla.org/preferences-service;1"]
+                    .getService(Ci.nsIPrefBranch);
+      showPrompt = !pref.getBoolPref("mail." + aCommand + ".dontAskAgain");
+    } catch (ex) {}
+
+    if (showPrompt) {
+      var checkbox = {value:false};
+      var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                             .getService(Ci.nsIPromptService);
+      var bundle = document.getElementById("bundle_messenger");
+      var ok = promptService.confirmEx(window,
+                                       bundle.getString(aCommand + "Title"),
+                                       bundle.getString(aCommand + "Message"),
+                                       promptService.STD_YES_NO_BUTTONS,
+                                       null, null, null,
+                                       bundle.getString(aCommand + "DontAsk"),
+                                       checkbox) == 0;
+      if (checkbox.value)
+        pref.setBoolPref("mail." + aCommand + ".dontAskAgain", true);
+      if (!ok)
+        return false;
+    }
+    return true;
+  },
   emptyTrashFolder: function(folder) {
     Application.console.log("Emptying Trash from folder ["
                             + folder.prettiestName + " on "
-                            + folder.server.prettyName + "]");
+                            + folder.server.prettyName + "] override = "
+                            + this.override_delete_confirm);
     folder.emptyTrash(null, null);
   },
   emptyJunkFolder: function(folder) {
     Application.console.log("Emptying Junk from folder ["
                             + folder.prettiestName + " on "
-                            + folder.server.prettyName + "]");
+                            + folder.server.prettyName + "] override = "
+                            + this.override_delete_confirm);
     var junkMsgs = Components.classes["@mozilla.org/array;1"]
                              .createInstance(Components.interfaces.nsIMutableArray);
     var enumerator = folder.messages;
@@ -78,6 +133,11 @@ var emptyem = {
     //
     try
     {
+      var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                      .getService(Components.interfaces.nsIPrefService);
+      prefs = prefs.getBranch("extensions.emptyem.");
+      this.override_delete_confirm = prefs.getBoolPref("override_delete_confirm");
+
       var allServers = accountManager.allServers;
       for (var i = 0; i < allServers.Count(); ++i)
       {
@@ -89,12 +149,20 @@ var emptyem = {
           var junkFolder = currentServer.rootFolder.getFolderWithFlags(Components.interfaces.nsMsgFolderFlags.Junk)
                                         .QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
 
-          this.emptyJunkFolder(junkFolder);
-
           var trashFolder = currentServer.rootFolder.getFolderWithFlags(Components.interfaces.nsMsgFolderFlags.Trash)
                                          .QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
 
-          this.emptyTrashFolder(trashFolder);
+          if (this.override_delete_confirm) {
+            this.emptyJunkFolder(junkFolder);
+            this.emptyTrashFolder(trashFolder);
+          } else {
+            if (this._checkConfirmationPrompt("emptyJunk")) {
+              this.emptyJunkFolder(junkFolder);
+            }
+            if (this._checkConfirmationPrompt("emptyTrash")) {
+              this.emptyTrashFolder(trashFolder);
+            }
+          }
         }
       }
     }
