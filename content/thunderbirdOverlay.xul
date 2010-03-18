@@ -57,7 +57,7 @@
   <toolbarbutton id="emptyem-toolbar-button"
     label="&emptyemToolbar.label;"
     tooltiptext="&emptyemToolbar.tooltip;"
-    oncommand="emptyem.onToolbarButtonCommand()"
+    oncommand="emptyem.onToolbarButtonCommand(event)"
     class="toolbarbutton-1 chromeclass-toolbar-additional"/>
   </toolbarpalette>
 </overlay>

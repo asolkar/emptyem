@@ -43,24 +43,7 @@ var emptyem = {
     this.initialized = true;
     this.strings = document.getElementById("emptyem-strings");
     document.getElementById("threadPaneContext")
-            .addEventListener("popupshowing", function(e) { this.showContextMenu(e); }, false);
-  },
-
-  observe: function(subject, topic, data)
-  {
-    if (topic != "nsPref:changed")
-    {
-      return;
-    }
- 
-    switch(data)
-    {
-      case "override_delete_confirm":
-        this.override_delete_confirm = this.prefs.getBoolPref("override_delete_confirm");
-        Application.console.log("Folder delete override changed: "
-                                + this.override_delete_confirm);
-        break;
-    }
+            .addEventListener("popupshowing", function(e) { emptyem.showContextMenu(e); }, false);
   },
 
   showContextMenu: function(event) {
@@ -128,6 +111,7 @@ var emptyem = {
   onMenuItemCommand: function(e) {
     var serverTypes = "";
 
+    Application.console.log("Empty 'em on it!");
     //
     // For all servers, find Junk and Trash folders
     //
