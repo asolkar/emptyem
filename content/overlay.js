@@ -38,7 +38,7 @@ var emptyem = {
   prefs: null,
   override_delete_confirm: false,
 
-  startup: function() {
+  onLoad: function() {
     // initialization code
     this.initialized = true;
     this.strings = document.getElementById("emptyem-strings");
@@ -165,15 +165,15 @@ var emptyem = {
           }
         }
       }
+
+      Application.console.log("Found " + allServers.Count() + " servers of types: " + serverTypes);
+
     }
     catch(ex)
     {
       Application.console.log(ex);
       Application.console.log(ex.stack);
     }
-
-    Application.console.log("Found " + allServers.Count() + " servers of types: " + serverTypes);
-
   },
   onToolbarButtonCommand: function(e) {
     // just reuse the function above.  you can change this, obviously!
