@@ -85,17 +85,17 @@ var emptyem = {
     return true;
   },
   emptyTrashFolder: function(folder) {
-    Application.console.log("Emptying Trash from folder ["
-                            + folder.prettiestName + " on "
-                            + folder.server.prettyName + "] override = "
-                            + this.override_delete_confirm);
+    Application.console.log("[Empty 'em] Emptying Trash from folder ("
+                        + folder.prettiestName + " on "
+                        + folder.server.prettyName + ") override = "
+                        + this.override_delete_confirm);
     folder.emptyTrash(null, null);
   },
   emptyJunkFolder: function(folder) {
-    Application.console.log("Emptying Junk from folder ["
-                            + folder.prettiestName + " on "
-                            + folder.server.prettyName + "] override = "
-                            + this.override_delete_confirm);
+    Application.console.log("[Empty 'em] Emptying Junk from folder ("
+                          + folder.prettiestName + " on "
+                          + folder.server.prettyName + ") override = "
+                          + this.override_delete_confirm);
     var junkMsgs = Components.classes["@mozilla.org/array;1"]
                              .createInstance(Components.interfaces.nsIMutableArray);
     var enumerator = folder.messages;
@@ -111,7 +111,11 @@ var emptyem = {
   onMenuItemCommand: function(e) {
     var serverTypes = "";
 
-    Application.console.log("Empty 'em on it!");
+    // Application.console.log("[Empty 'em] Empty 'em on it!");
+    // Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+    //           .getService(Components.interfaces.nsIPromptService)
+    //           .alert(window, "I Say!", "Empty 'em on it!");
+
     //
     // For all servers, find Junk and Trash folders
     //
@@ -119,13 +123,20 @@ var emptyem = {
     {
       var prefs = Components.classes["@mozilla.org/preferences-service;1"]
                       .getService(Components.interfaces.nsIPrefService);
-      prefs = prefs.getBranch("extensions.emptyem.");
-      this.override_delete_confirm = prefs.getBoolPref("override_delete_confirm");
+      var prefsb = prefs.getBranch("extensions.emptyem.");
+      this.override_delete_confirm = prefsb.getBoolPref("override_delete_confirm");
 
-      var allServers = accountManager.allServers;
-      for (var i = 0; i < allServers.Count(); ++i)
+
+      Application.console.log("[Empty 'em] Pref override_delete_confirm = " + this.override_delete_confirm);
+
+      var accountManager = Components.classes["@mozilla.org/messenger/account-manager;1"]
+                                     .getService(Components.interfaces.nsIMsgAccountManager);
+
+
+      var servers = accountManager.allServers;
+      for (var i = 0; i < servers.Count(); ++i)
       {
-        var currentServer = allServers.QueryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+        var currentServer = servers.QueryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
         serverTypes += " " + currentServer.type;
 
         if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
@@ -150,13 +161,13 @@ var emptyem = {
         }
       }
 
-      Application.console.log("Found " + allServers.Count() + " servers of types: " + serverTypes);
+      Application.console.log("[Empty 'em] Found " + servers.Count() + " servers of types: " + serverTypes);
 
     }
     catch(ex)
     {
-      Application.console.log(ex);
-      Application.console.log(ex.stack);
+      Application.console.log("[Empty 'em] Exception - " + ex);
+      Application.console.log("[Empty 'em] Stack - " + ex.stack);
     }
   },
   onToolbarButtonCommand: function(e) {
