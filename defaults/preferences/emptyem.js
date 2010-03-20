@@ -1,5 +1,3 @@
-pref("extensions.emptyem.boolpref", false);
-pref("extensions.emptyem.intpref", 0);
-pref("extensions.emptyem.stringpref", "A string");
+pref("extensions.emptyem.override_delete_confirm", false);
 // See http://kb.mozillazine.org/Localize_extension_descriptions
 pref("extensions.emptyem@mahesh.asolkar.description", "chrome://emptyem/locale/emptyem.properties");
