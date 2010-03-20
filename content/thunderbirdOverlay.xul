@@ -45,19 +45,19 @@
   </stringbundleset>
 
   <menupopup id="taskPopup">
-    <menuitem id="emptyem-hello" label="&emptyem.label;" 
-              oncommand="emptyem.onMenuItemCommand(event);"/>
+    <menuitem id="emptyem-empty-trash-junk" label="&emptyem.label;" 
+              oncommand="emptyem.onMenuEmptyTrashJunkCommand(event);"/>
   </menupopup>
-  <popup id="threadPaneContext">
-    <menuitem id="context-emptyem" label="&emptyemContext.label;"
+  <popup id="folderPaneContext">
+    <menuitem id="context-emptyem-empty-trash-junk" label="&emptyemContext.label;"
               accesskey="&emptyemContext.accesskey;"
-              oncommand="emptyem.onMenuItemCommand(event)"/>
+              oncommand="emptyem.onMenuEmptyTrashJunkCommand(event)"/>
   </popup>
   <toolbarpalette id="MailToolbarPalette">
-  <toolbarbutton id="emptyem-toolbar-button"
+  <toolbarbutton id="emptyem-toolbar-empty-trash-junk-button"
     label="&emptyemToolbar.label;"
     tooltiptext="&emptyemToolbar.tooltip;"
-    oncommand="emptyem.onToolbarButtonCommand(event)"
-    class="toolbarbutton-1 chromeclass-toolbar-additional"/>
+    oncommand="emptyem.onToolbarEmptyTrashJunkButtonCommand(event)"
+    class="toolbarbutton-empty-trash-junk chromeclass-toolbar-additional"/>
   </toolbarpalette>
 </overlay>

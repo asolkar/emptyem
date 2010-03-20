@@ -42,14 +42,14 @@ var emptyem = {
     // initialization code
     this.initialized = true;
     this.strings = document.getElementById("emptyem-strings");
-    document.getElementById("threadPaneContext")
+    document.getElementById("folderPaneContext")
             .addEventListener("popupshowing", function(e) { emptyem.showContextMenu(e); }, false);
   },
 
   showContextMenu: function(event) {
     // show or hide the menuitem based on what the context menu is on
     // see http://kb.mozillazine.org/Adding_items_to_menus
-    document.getElementById("context-emptyem").hidden = (GetNumSelectedMessages() > 0);
+    document.getElementById("context-emptyem-empty-trash-junk").hidden = 0;
   },
   //
   // Following function borrowed from:
@@ -108,7 +108,7 @@ var emptyem = {
       folder.deleteMessages(junkMsgs, msgWindow, false, false, null, true);
     }
   },
-  onMenuItemCommand: function(e) {
+  onMenuEmptyTrashJunkCommand: function(e) {
     var serverTypes = "";
 
     // Application.console.log("[Empty 'em] Empty 'em on it!");
@@ -170,9 +170,9 @@ var emptyem = {
       Application.console.log("[Empty 'em] Stack - " + ex.stack);
     }
   },
-  onToolbarButtonCommand: function(e) {
+  onToolbarEmptyTrashJunkButtonCommand: function(e) {
     // just reuse the function above.  you can change this, obviously!
-    emptyem.onMenuItemCommand(e);
+    emptyem.onMenuEmptyTrashJunkCommand(e);
   }
 
 };
