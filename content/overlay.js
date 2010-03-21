@@ -161,11 +161,16 @@ var emptyem = {
         }
       }
 
+      //
+      // Generate an alert after everything is done
+      //
       var alertsService = Components.classes["@mozilla.org/alerts-service;1"]
                                     .getService(Components.interfaces.nsIAlertsService);
-      alertsService.showAlertNotification("chrome://emptyem/skin/emptyem.png",
+      var num_servers = servers.Count()-1;
+      alertsService.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
                                           "Empty 'em",
-                                          "Emptied Trash and Junk folders from " + (servers.Count()-1) + " servers",
+                                          "Emptied Trash and Junk folders from " + num_servers
+                                            + ((num_servers == 1) ? " server" : " servers"),
                                           false, "", null);
 
       Application.console.log("[Empty 'em] Found " + servers.Count() + " servers of types: " + serverTypes);
