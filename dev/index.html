@@ -7,25 +7,138 @@
 
   <!-- Mobile stylesheet -->
   <style type="text/css">
+/* -- Reset Styles --
+  From: http://meyerweb.com/eric/thoughts/2007/05/01/reset-reloaded/
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
+	}
+/* remember to define focus styles! */
+:focus {
+	outline: 0;
+	}
 body {
-  background:none repeat scroll 0 0 #999;
+	line-height: 1;
+	color: black;
+	background: white;
+	}
+ol, ul {
+	list-style: none;
+	}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+	}
+caption, th, td {
+	text-align: left;
+	font-weight: normal;
+	}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+	}
+blockquote, q {
+	quotes: "" "";
+	}
+
+/* -- Reset Done -- */
+
+body {
+  line-height : 1.7em;
+  margin : 0 0 0 0;
+  top: 0px;
+  overflow : auto;
+  width : 100%;
+  height : 100%;
+
+  background: #bbb;
+
   font-family:"Trebuchet MS",sans-serif;
-  font-size:15px;
+  font-size: 15px;
+  color:#000;
+  text-shadow: 0 1px 1px #eee;
+}
+
+#shrink_wrapper_shell {
+  display: block;
+  /*position : fixed;*/
+  margin : 0 auto;
+  text-align : center;
+  background-color : transparent;
+}
+#shrink_wrapper {
+  position : relative;
+  display : block;
+  width : 720px;
+  margin : 0 auto;
+  margin-left : auto;
+  margin-right : auto;
+  padding-bottom : 10px;
+  text-align : left;
+}
+
+br.clear {
+  clear : both;
+  padding : 3px;
 }
 
 h1 {
-
+  font-size : 48px;
+  font-weight : bold;
+  padding-top : 1em;
+  padding-bottom : 0.5em;
+}
+h2 {
+  font-size : 20px;
+  font-weight : bold;
+  padding-top : 1em;
+  padding-bottom : 0.5em;
 }
 
-.norm_txt {
-  color:#000;
-  font-family:"Trebuchet MS",sans-serif;
-  text-shadow: 0 1px 1px #ccc;
+#emptyem_img {
+  float : left;
+  padding : 20px;
+  width : 30%;
 }
-.norm_txt:hover {
-  color:#333;
-  font-family:"Trebuchet MS",sans-serif;
-  text-shadow: 0 1px 1px #eee;
+#emptyem_desc {
+  float : right;
+  padding : 20px;
+  font-size : 24px;
+  width : 50%;
+  line-height : 1.5em;
+  color : #333;
+}
+
+a {
+  text-decoration : none;
+  color : #070;
+}
+a:hover {
+  /*text-decoration : underline;*/
+  text-shadow : 0 1px 1px #333;
+}
+
+.menu_type {
+  font-size : 13px;
+  font-style : italic;
+  font-family : monospace;
 }
   </style>
 
@@ -36,9 +149,40 @@ h1 {
 
 </head>
 <body>
-<h1>Empty 'em</h1>
-<div class="norm_txt">
-This is a Thunderbird extension to empty Trash and Junk folders from multiple servers.
+<div id='shrink_wrapper_shell'>
+<div id='shrink_wrapper'>
+<div id='emptyem_img'>
+  <img src="emptyem_icon_large.png" />
+</div>
+<div id='emptyem_desc'>
+  <h1>Empty 'em</h1>
+  Empty all your Trash and Junk folders in one fell swoop!
+</div>
+
+<br class="clear" />
+
+<h2>Introduction</h2>
+
+This is a simple Thunderbird extension that empties all Junk and Trash folders. The extension provides a menu item (<span class="menu_type">Tools -&gt; Empty Junk &amp; Trash</span>) and a toolbar button to do so.
+
+<h2>Background</h2>
+
+In Thunderbird, I usually have around half-a-dozen email accounts set up. Most of them Gmail accounts. Very often, Gmail's Junk filter catches tons of Junk email and populates the Junk folders in Thunderbird. After manually cleaning up the Inbox folders and deleting unwanted email, the Trash folders are also populated.
+
+Manually going through all the Junk and Trash folders to empty them, is tedious.
+
+That is what prompted me to write this extension. I hope someone out there finds it helpful too.
+
+<h2>Download</h2>
+
+Source and installation files (<code>.xpi</code>) files can be found on <a href="http://github.com/asolkar/emptyem/" target="_blank">the project page on GitHub</a>. Feel free to fork!
+
+<h2>Credits</h2>
+
+Icon from <a href="http://www.iconarchive.com/show/folder-icons-by-deleket/Trash-Empty-icon.html">Jojo Mendoza</a>
+
+</div> <!-- shrink_wrapper -->
+</div> <!-- shrink_wrapper_shell -->
 </body>
 </html>
 
