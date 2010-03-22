@@ -111,7 +111,9 @@ h2 {
   padding-top : 1em;
   padding-bottom : 0.5em;
 }
-
+code {
+  font-family : monospace;
+}
 #emptyem_img {
   float : left;
   padding : 20px;
@@ -140,12 +142,23 @@ a:hover {
   font-style : italic;
   font-family : monospace;
 }
+.img_thumb {
+  width : 200px;
+  height : 100px;
+  border : 10px solid #eee;
+  margin-left : 5px;
+  margin-right : 5px;
+}
   </style>
 
   <script type="text/javascript">
   //<![CDATA[
   //]]>
   </script>
+  <script type="text/javascript" src="js/prototype.js"></script>
+  <script type="text/javascript" src="js/scriptaculous.js?load=effects,builder"></script>
+  <script type="text/javascript" src="js/lightbox.js"></script>
+  <link rel="stylesheet" href="css/lightbox.css" type="text/css" media="screen" />
 
 </head>
 <body>
@@ -173,9 +186,15 @@ Manually going through all the Junk and Trash folders to empty them, is tedious.
 
 That is what prompted me to write this extension. I hope someone out there finds it helpful too.
 
+<h2>Screenshots</h2>
+
+<a href="toolbar-button.png" rel="lightbox[emptyem]" title="Toolbar button"><img src="toolbar-button.png" class="img_thumb"></a>
+<a href="folder-pane-context-menu.png" rel="lightbox[emptyem]" title="Folder pane context menu entry"><img src="folder-pane-context-menu.png" class="img_thumb"></a>
+<a href="notification-alert.png" rel="lightbox[emptyem]" title="Notification - Ubuntu example"><img src="notification-alert.png" class="img_thumb"></a>
+
 <h2>Download</h2>
 
-Source and installation files (<code>.xpi</code>) files can be found on <a href="http://github.com/asolkar/emptyem/" target="_blank">the project page on GitHub</a>. Feel free to fork!
+The add-on is not quite ready to be on the <a href="https://addons.mozilla.org/en-US/thunderbird/">Add-ons for Thunderbird</a> website. But you source and installation files (<code>.xpi</code>) files can be found on <a href="http://github.com/asolkar/emptyem/" target="_blank">the project page on GitHub</a>. Feel free to fork!
 
 <h2>Credits</h2>
 
@@ -183,6 +202,7 @@ Icon from <a href="http://www.iconarchive.com/show/folder-icons-by-deleket/Trash
 
 </div> <!-- shrink_wrapper -->
 </div> <!-- shrink_wrapper_shell -->
+
 </body>
 </html>
 
