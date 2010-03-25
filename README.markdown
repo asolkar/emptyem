@@ -11,8 +11,3 @@ In Thunderbird, I usually have around half-a-dozen email accounts set up. Most o
 Manually going through all the _Junk_ and _Trash_ folders to empty them, is tedious.
 
 That is what prompted me to write this extension. I hope someone out there finds it helpful too.
-
-Credits
--------
-
-Icon from [Jojo Mendoza](http://www.iconarchive.com/show/folder-icons-by-deleket/Trash-Empty-icon.html)
