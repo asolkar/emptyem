@@ -10,7 +10,7 @@
     <em:homepageURL>http://emptyem.mahesha.com</em:homepageURL>
     <em:aboutURL>chrome://emptyem/content/about.xul</em:aboutURL>
     <em:optionsURL>chrome://emptyem/content/options.xul</em:optionsURL>
-    <em:iconURL>chrome://emptyem/content/emptyem.png</em:iconURL>
+    <em:iconURL>chrome://emptyem/skin/emptyem_icon.png</em:iconURL>
     <em:targetApplication>
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id> <!-- thunderbird -->
