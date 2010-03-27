@@ -36,20 +36,30 @@
   - ***** END LICENSE BLOCK ***** -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://emptyem/skin/overlay.css" type="text/css"?>
 <!DOCTYPE dialog SYSTEM "chrome://emptyem/locale/about.dtd">
-<dialog title="&about; Empty 'em" orient="vertical" autostretch="always" onload="sizeToContent()" buttons="accept" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog title="&about; Empty 'em"
+        orient="vertical"
+        autostretch="always"
+        onload="init()"
+        buttons="accept"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script type="application/x-javascript" src="chrome://emptyem/content/about.js"/>
 <!-- Original template by Jed Brown -->
 <groupbox align="center" orient="horizontal">
+<spring flex="1"/>
+<image id="emptyem-about-logo"/>
 <vbox>
   <text value="Empty 'em" style="font-weight: bold; font-size: x-large;"/>
-  <text value="&version; 0.1"/>
+  <text value="&version;" style="font-weight: bold;"/>
+    <text id="emptyem-about-version" value=""/>
   <separator class="thin"/>
   <text value="&createdBy;" style="font-weight: bold;"/>
   <text value="Mahesh Asolkar"/>
   <separator class="thin"/>
-      <text value="&homepage;" style="font-weight: bold;"/>
-    <text value="http://emptyem.mahesha.com"
-          class="url"
+  <text value="&homepage;" style="font-weight: bold;"/>
+  <text value="http://emptyem.mahesha.com"
+        class="url"
         onclick="window.open('http://emptyem.mahesha.com'); window.close();"/>
   <separator class="thin"/>
 </vbox>

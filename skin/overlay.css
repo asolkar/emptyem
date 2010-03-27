@@ -16,3 +16,7 @@
 {
   -moz-image-region: rect(24px 40px 40px 24px);
 }
+#emptyem-about-logo
+{
+  list-style-image: url("chrome://emptyem/skin/emptyem_icon.png");
+}
