@@ -34,9 +34,14 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+
 var emptyem = {
   prefs: null,
   override_delete_confirm: false,
+  select_trash_delete: false,
+  select_junk_delete: false,
 
   onLoad: function() {
     // initialization code
@@ -56,8 +61,6 @@ var emptyem = {
   //   http://mxr.mozilla.org/comm-central/source/mail/base/content/folderPane.js#2216
   //
   _checkConfirmationPrompt: function ftc_confirm(aCommand) {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
     var showPrompt = true;
     try {
       var pref = Cc["@mozilla.org/preferences-service;1"]
@@ -96,12 +99,12 @@ var emptyem = {
                           + folder.prettiestName + " on "
                           + folder.server.prettyName + ") override = "
                           + this.override_delete_confirm);
-    var junkMsgs = Components.classes["@mozilla.org/array;1"]
-                             .createInstance(Components.interfaces.nsIMutableArray);
+    var junkMsgs = Cc["@mozilla.org/array;1"]
+                     .createInstance(Ci.nsIMutableArray);
     var enumerator = folder.messages;
     while (enumerator.hasMoreElements())
     {
-      var msgHdr = enumerator.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
+      var msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       junkMsgs.appendElement(msgHdr, false);
     }
     if (junkMsgs.length) {
@@ -112,50 +115,67 @@ var emptyem = {
     var serverTypes = "";
 
     // Application.console.log("[Empty 'em] Empty 'em on it!");
-    // Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-    //           .getService(Components.interfaces.nsIPromptService)
-    //           .alert(window, "I Say!", "Empty 'em on it!");
+    // Cc["@mozilla.org/embedcomp/prompt-service;1"]
+    //   .getService(Ci.nsIPromptService)
+    //   .alert(window, "I Say!", "Empty 'em on it!");
 
     //
     // For all servers, find Junk and Trash folders
     //
     try
     {
-      var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                      .getService(Components.interfaces.nsIPrefService);
+      var prefs = Cc["@mozilla.org/preferences-service;1"]
+                     .getService(Ci.nsIPrefService);
       var prefsb = prefs.getBranch("extensions.emptyem.");
       this.override_delete_confirm = prefsb.getBoolPref("override_delete_confirm");
+      this.select_trash_delete = prefsb.getBoolPref("select_trash_delete");
+      this.select_junk_delete = prefsb.getBoolPref("select_junk_delete");
 
 
-      Application.console.log("[Empty 'em] Pref override_delete_confirm = " + this.override_delete_confirm);
+      Application.console.log("[Empty 'em] Prefs\n" +
+                              "  override_delete_confirm = " + this.override_delete_confirm + "\n" +
+                              "  select_trash_delete = " + this.select_trash_delete + "\n" +
+                              "  select_junk_delete = " + this.select_junk_delete);
 
-      var accountManager = Components.classes["@mozilla.org/messenger/account-manager;1"]
-                                     .getService(Components.interfaces.nsIMsgAccountManager);
+      var accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
+                              .getService(Ci.nsIMsgAccountManager);
 
 
       var servers = accountManager.allServers;
       for (var i = 0; i < servers.Count(); ++i)
       {
-        var currentServer = servers.QueryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+        var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
         serverTypes += " " + currentServer.type;
 
         if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
+          //
+          // Deal with Trash folders only if selected
+          //
+          if (this.select_trash_delete) {
+            var trashFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
+                                           .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-          var junkFolder = currentServer.rootFolder.getFolderWithFlags(Components.interfaces.nsMsgFolderFlags.Junk)
-                                        .QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
-
-          var trashFolder = currentServer.rootFolder.getFolderWithFlags(Components.interfaces.nsMsgFolderFlags.Trash)
-                                         .QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
-
-          if (this.override_delete_confirm) {
-            this.emptyJunkFolder(junkFolder);
-            this.emptyTrashFolder(trashFolder);
-          } else {
-            if (this._checkConfirmationPrompt("emptyJunk")) {
-              this.emptyJunkFolder(junkFolder);
-            }
-            if (this._checkConfirmationPrompt("emptyTrash")) {
+            if (this.override_delete_confirm) {
               this.emptyTrashFolder(trashFolder);
+            } else {
+              if (this._checkConfirmationPrompt("emptyTrash")) {
+                this.emptyTrashFolder(trashFolder);
+              }
+            }
+          }
+          //
+          // Deal with Junk folders only if selected
+          //
+          if (this.select_junk_delete) {
+            var junkFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk)
+                                          .QueryInterface(Ci.nsIMsgImapMailFolder);
+
+            if (this.override_delete_confirm) {
+              this.emptyJunkFolder(junkFolder);
+            } else {
+              if (this._checkConfirmationPrompt("emptyJunk")) {
+                this.emptyJunkFolder(junkFolder);
+              }
             }
           }
         }
@@ -164,12 +184,12 @@ var emptyem = {
       //
       // Generate an alert after everything is done
       //
-      var alertsService = Components.classes["@mozilla.org/alerts-service;1"]
-                                    .getService(Components.interfaces.nsIAlertsService);
+      var alertsService = Cc["@mozilla.org/alerts-service;1"]
+                             .getService(Ci.nsIAlertsService);
       var num_servers = servers.Count()-1;
       alertsService.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
                                           "Empty 'em",
-                                          "Emptied Trash and Junk folders from " + num_servers
+                                          "Emptied selected Trash and Junk folders from " + num_servers
                                             + ((num_servers == 1) ? " server" : " servers"),
                                           false, "", null);
 

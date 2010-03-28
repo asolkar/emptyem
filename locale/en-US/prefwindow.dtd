@@ -1,5 +1,10 @@
 <!ENTITY prefwindow.title "Empty 'em preferences">
-<!ENTITY prefwindow.heading "Set Empty 'em preferences:">
 <!ENTITY pane1.title "Empty 'em preferences">
-<!ENTITY overridedeleteconfirm.label "Override delete folder's confirmation setting">
+<!ENTITY prefwindow.heading "Set Empty 'em preferences:">
+<!ENTITY overridedeleteconfirm.label "Override folder's confirmation setting">
 <!ENTITY overridedeleteconfirm.accesskey "O">
+<!ENTITY prefwindow.selectionheading "Select which folders to include:">
+<!ENTITY selecttrashdelete.label "Include Trash folders">
+<!ENTITY selecttrashdelete.accesskey "T">
+<!ENTITY selectjunkdelete.label "Include Junk folders">
+<!ENTITY selectjunkdelete.accesskey "J">
