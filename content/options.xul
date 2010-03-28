@@ -37,15 +37,19 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <!DOCTYPE prefwindow SYSTEM "chrome://emptyem/locale/prefwindow.dtd">
-<prefwindow id="emptyemPreferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
+<prefwindow id="emptyemPreferences"
+            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            title="&prefwindow.title;">
   <prefpane id="pane1" label="&pane1.title;">
     <preferences>
-      <preference id="override_delete_confirm" name="extensions.emptyem.override_delete_confirm" type="bool"/>
-      <!-- preference id="intpref1" name="extensions.emptyem.intpref" type="int"/>
-      <preference id="stringpref1" name="extensions.emptyem.stringpref" type="string"/ --> <!-- note that this is only an ASCII string - use unichar for unicode strings -->
+      <preference id="override_delete_confirm"
+                  name="extensions.emptyem.override_delete_confirm"
+                  type="bool"/>
     </preferences>
-    <checkbox id="overridedeleteconfirm" preference="override_delete_confirm" label="&overridedeleteconfirm.label;" accesskey="&overridedeleteconfirm.accesskey;"/>
-    <!-- label accesskey="&intpref.accesskey;" control="textintpref">&intpref.label;</label><textbox id="textintpref" preference="intpref1"/>
-    <label accesskey="&stringpref.accesskey;" control="textstringpref">&stringpref.label;</label><textbox id="textstringpref" preference="stringpref1"/ -->
+    <text value="&prefwindow.heading;"/>
+    <checkbox id="overridedeleteconfirm"
+              preference="override_delete_confirm"
+              label="&overridedeleteconfirm.label;"
+              accesskey="&overridedeleteconfirm.accesskey;"/>
   </prefpane>
 </prefwindow>
