@@ -60,7 +60,7 @@ var emptyem = {
   // Following function borrowed from:
   //   http://mxr.mozilla.org/comm-central/source/mail/base/content/folderPane.js#2216
   //
-  _checkConfirmationPrompt: function ftc_confirm(aCommand) {
+  checkConfirmationPrompt: function ftc_confirm(aCommand) {
     var showPrompt = true;
     try {
       var pref = Cc["@mozilla.org/preferences-service;1"]
@@ -155,10 +155,18 @@ var emptyem = {
             var trashFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
                                            .QueryInterface(Ci.nsIMsgImapMailFolder);
 
+            //
+            // Before emptying the folder, make it up-to-date
+            //
+            trashFolder.getNewMessages(null, null);
+
+            //
+            // Check if delete confirmation is needed
+            //
             if (this.override_delete_confirm) {
               this.emptyTrashFolder(trashFolder);
             } else {
-              if (this._checkConfirmationPrompt("emptyTrash")) {
+              if (this.checkConfirmationPrompt("emptyTrash")) {
                 this.emptyTrashFolder(trashFolder);
               }
             }
@@ -170,10 +178,25 @@ var emptyem = {
             var junkFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk)
                                           .QueryInterface(Ci.nsIMsgImapMailFolder);
 
+            //
+            // Before emptying the folder, make it up-to-date
+            //
+            junkFolder.getNewMessages(null, null);
+
+            //
+            // Check if delete confirmation is needed
+            //
+            if (this.override_delete_confirm) {
+              this.emptyTrashFolder(trashFolder);
+            } else {
+              if (this.checkConfirmationPrompt("emptyTrash")) {
+                this.emptyTrashFolder(trashFolder);
+              }
+            }
             if (this.override_delete_confirm) {
               this.emptyJunkFolder(junkFolder);
             } else {
-              if (this._checkConfirmationPrompt("emptyJunk")) {
+              if (this.checkConfirmationPrompt("emptyJunk")) {
                 this.emptyJunkFolder(junkFolder);
               }
             }
@@ -203,7 +226,6 @@ var emptyem = {
     }
   },
   onToolbarEmptyTrashJunkButtonCommand: function(e) {
-    // just reuse the function above.  you can change this, obviously!
     emptyem.onMenuEmptyTrashJunkCommand(e);
   }
 
