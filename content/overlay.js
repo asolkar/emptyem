@@ -38,17 +38,51 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 var emptyem = {
+
   prefs: null,
   override_delete_confirm: false,
+
   select_trash_delete: false,
   select_junk_delete: false,
 
+  to_empty_junk: {},
+  to_empty_trash: {},
+
+  mail_session: null,
+  account_manager: null,
+
   onLoad: function() {
     // initialization code
-    this.initialized = true;
+
     this.strings = document.getElementById("emptyem-strings");
     document.getElementById("folderPaneContext")
-            .addEventListener("popupshowing", function(e) { emptyem.showContextMenu(e); }, false);
+            .addEventListener("popupshowing",
+                              function(e) {
+                                emptyem.showContextMenu(e);
+                              }, false);
+
+    this.mail_session = Cc["@mozilla.org/messenger/services/session;1"]
+                        .getService(Ci.nsIMsgMailSession);
+
+    this.mail_session.AddFolderListener(this.folderListener, Ci.nsIFolderListener.event);
+
+    this.account_manager = Cc["@mozilla.org/messenger/account-manager;1"]
+                          .getService(Ci.nsIMsgAccountManager);
+
+    //
+    // Initialize to_empty arrays
+    //
+    var servers = this.account_manager.allServers;
+    for (var i = 0; i < servers.Count(); ++i)
+    {
+      var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      this.to_empty_junk[currentServer.prettyName] = false;
+      this.to_empty_trash[currentServer.prettyName] = false;
+    }
+
+    this.folderListener.init(this);
+
+    this.initialized = true;
   },
 
   showContextMenu: function(event) {
@@ -137,17 +171,25 @@ var emptyem = {
                               "  select_trash_delete = " + this.select_trash_delete + "\n" +
                               "  select_junk_delete = " + this.select_junk_delete);
 
-      var accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
-                              .getService(Ci.nsIMsgAccountManager);
-
-
-      var servers = accountManager.allServers;
+      var servers = this.account_manager.allServers;
       for (var i = 0; i < servers.Count(); ++i)
       {
         var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
         serverTypes += " " + currentServer.type;
 
         if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
+          //
+          // Deal with Junk folders only if selected
+          //
+          if (this.select_junk_delete) {
+            var junkFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk)
+                                          .QueryInterface(Ci.nsIMsgImapMailFolder);
+            //
+            // Before emptying the folder, make it up-to-date
+            //
+            junkFolder.updateFolder(null);
+            this.to_empty_junk[currentServer.prettyName] = true;
+          }
           //
           // Deal with Trash folders only if selected
           //
@@ -158,48 +200,8 @@ var emptyem = {
             //
             // Before emptying the folder, make it up-to-date
             //
-            trashFolder.getNewMessages(null, null);
-
-            //
-            // Check if delete confirmation is needed
-            //
-            if (this.override_delete_confirm) {
-              this.emptyTrashFolder(trashFolder);
-            } else {
-              if (this.checkConfirmationPrompt("emptyTrash")) {
-                this.emptyTrashFolder(trashFolder);
-              }
-            }
-          }
-          //
-          // Deal with Junk folders only if selected
-          //
-          if (this.select_junk_delete) {
-            var junkFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk)
-                                          .QueryInterface(Ci.nsIMsgImapMailFolder);
-
-            //
-            // Before emptying the folder, make it up-to-date
-            //
-            junkFolder.getNewMessages(null, null);
-
-            //
-            // Check if delete confirmation is needed
-            //
-            if (this.override_delete_confirm) {
-              this.emptyTrashFolder(trashFolder);
-            } else {
-              if (this.checkConfirmationPrompt("emptyTrash")) {
-                this.emptyTrashFolder(trashFolder);
-              }
-            }
-            if (this.override_delete_confirm) {
-              this.emptyJunkFolder(junkFolder);
-            } else {
-              if (this.checkConfirmationPrompt("emptyJunk")) {
-                this.emptyJunkFolder(junkFolder);
-              }
-            }
+            trashFolder.updateFolder(null);
+            this.to_empty_trash[currentServer.prettyName] = true;
           }
         }
       }
@@ -227,7 +229,70 @@ var emptyem = {
   },
   onToolbarEmptyTrashJunkButtonCommand: function(e) {
     emptyem.onMenuEmptyTrashJunkCommand(e);
+  },
+  handleJunkFolder: function (junkFolder) {
+    //
+    // Check if delete confirmation is needed
+    //
+    if (this.override_delete_confirm) {
+      this.emptyJunkFolder(junkFolder);
+    } else {
+      if (this.checkConfirmationPrompt("emptyJunk")) {
+        this.emptyJunkFolder(junkFolder);
+      }
+    }
+  },
+  handleTrashFolder: function (trashFolder) {
+    //
+    // Check if delete confirmation is needed
+    //
+    if (this.override_delete_confirm) {
+      this.emptyTrashFolder(trashFolder);
+    } else {
+      if (this.checkConfirmationPrompt("emptyTrash")) {
+        this.emptyTrashFolder(trashFolder);
+      }
+    }
+  },
+  folderListener: {
+    my_parent: null,
+    init: function (owner) {
+      my_parent = owner;
+    },
+    OnItemEvent: function OnItemEvent(folder, the_event) {
+      var event_type = the_event.toString();
+      Application.console.log("[Empty 'em] Listener - received folder event " + event_type +
+            " folder " + folder.name +
+            "\n");
+      if (event_type == "FolderLoaded") {
+        if (folder.name == "Trash") {
+          if (my_parent.to_empty_trash[folder.server.prettyName] == true) {
+            Application.console.log("[Empty 'em] Listener Emptying folder ("
+                                + folder.prettiestName + " on "
+                                + folder.server.prettyName + ")");
+            my_parent.handleTrashFolder(folder);
+            my_parent.to_empty_trash[folder.server.prettyName] = false;
+          } else {
+            Application.console.log("[Empty 'em] Listener unsolicited ("
+                                + folder.prettiestName + " on "
+                                + folder.server.prettyName + ")");
+          }
+        }
+        if (folder.name == "Spam") {
+          if (my_parent.to_empty_junk[folder.server.prettyName] == true) {
+            Application.console.log("[Empty 'em] Listener Emptying folder ("
+                                + folder.prettiestName + " on "
+                                + folder.server.prettyName + ")");
+            my_parent.handleJunkFolder(folder);
+            my_parent.to_empty_junk[folder.server.prettyName] = false;
+          } else {
+            Application.console.log("[Empty 'em] Listener unsolicited ("
+                                + folder.prettiestName + " on "
+                                + folder.server.prettyName + ")");
+          }
+        }
+      }
+    }
   }
-
 };
 window.addEventListener("load", function(e) { emptyem.onLoad(e); }, false);

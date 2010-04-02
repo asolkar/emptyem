@@ -6,3 +6,8 @@ Get folders with flags example at:
 
 Flags listed at:
   http://mxr.mozilla.org/comm-central/source/mailnews/base/public/nsMsgFolderFlags.idl#42
+
+Info on db listeners (Thanks jcranmer)
+
+  https://developer.mozilla.org/en/Extensions/Thunderbird/HowTos/Common_Thunderbird_Use_Cases/Open_Folder#Watch_for_New_Mail
+  http://mxr.mozilla.org/comm-1.9.1/source/mailnews/imap/test/unit/test_imapFilterActions.js
