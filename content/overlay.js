@@ -172,6 +172,7 @@ var emptyem = {
                               "  select_junk_delete = " + this.select_junk_delete);
 
       var servers = this.account_manager.allServers;
+
       for (var i = 0; i < servers.Count(); ++i)
       {
         var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
@@ -185,21 +186,32 @@ var emptyem = {
             var junkFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk)
                                           .QueryInterface(Ci.nsIMsgImapMailFolder);
             //
-            // Before emptying the folder, make it up-to-date
+            // Before emptying the folder, make it up-to-date.
+            // Then schedule it to be emptied
             //
             junkFolder.updateFolder(null);
             this.to_empty_junk[currentServer.prettyName] = true;
           }
-          //
-          // Deal with Trash folders only if selected
-          //
+        }
+      }
+
+      //
+      // Figure out a way to wait until all Spam folders are clean
+      //
+
+
+      //
+      // Now the same for Trash folders
+      //
+      for (var i = 0; i < servers.Count(); ++i)
+      {
+        var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+
+        if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
           if (this.select_trash_delete) {
             var trashFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
                                            .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-            //
-            // Before emptying the folder, make it up-to-date
-            //
             trashFolder.updateFolder(null);
             this.to_empty_trash[currentServer.prettyName] = true;
           }
