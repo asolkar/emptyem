@@ -62,6 +62,10 @@
                 preference="override_delete_confirm"
                 label="&overridedeleteconfirm.label;"
                 accesskey="&overridedeleteconfirm.accesskey;"/>
+      <checkbox id="consoledebug"
+                preference="console_debug"
+                label="&consoledebug.label;"
+                accesskey="&consoledebug.accesskey;"/>
       <groupbox>
         <caption label="&prefwindow.selectionheading;"/>
         <checkbox id="selecttrashdelete"
@@ -72,10 +76,6 @@
                   preference="select_junk_delete"
                   label="&selectjunkdelete.label;"
                   accesskey="&selectjunkdelete.accesskey;"/>
-        <checkbox id="consoledebug"
-                  preference="console_debug"
-                  label="&consoledebug.label;"
-                  accesskey="&consoledebug.accesskey;"/>
       </groupbox>
     </groupbox>
   </prefpane>
