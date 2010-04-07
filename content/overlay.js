@@ -317,7 +317,7 @@ var emptyem = {
                               " folder " + folder.name +
                               "\n");
       if (event_type == "FolderLoaded") {
-        if (folder.name == "Trash") {
+        if (folder.getFlag(Ci.nsMsgFolderFlags.Trash) == true) {
           if (my_parent.to_empty_trash[folder.server.prettyName] == true) {
             my_parent.debugMessage("[Empty 'em] Listener Emptying folder ("
                                     + folder.prettiestName + " on "
@@ -330,7 +330,7 @@ var emptyem = {
                                     + folder.server.prettyName + ")");
           }
         }
-        if (folder.name == "Spam") {
+        if (folder.getFlag(Ci.nsMsgFolderFlags.Junk) == true) {
           if (my_parent.to_empty_junk[folder.server.prettyName] == true) {
             my_parent.debugMessage("[Empty 'em] Listener Emptying folder ("
                                     + folder.prettiestName + " on "
