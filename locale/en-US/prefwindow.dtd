@@ -8,3 +8,5 @@
 <!ENTITY selecttrashdelete.accesskey "T">
 <!ENTITY selectjunkdelete.label "Include Junk folders">
 <!ENTITY selectjunkdelete.accesskey "J">
+<!ENTITY consoledebug.label "Enable console debug messages">
+<!ENTITY consoledebug.accesskey "D">

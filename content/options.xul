@@ -51,6 +51,9 @@
       <preference id="select_junk_delete"
                   name="extensions.emptyem.select_junk_delete"
                   type="bool"/>
+      <preference id="console_debug"
+                  name="extensions.emptyem.console_debug"
+                  type="bool"/>
     </preferences>
 
     <groupbox>
@@ -69,6 +72,10 @@
                   preference="select_junk_delete"
                   label="&selectjunkdelete.label;"
                   accesskey="&selectjunkdelete.accesskey;"/>
+        <checkbox id="consoledebug"
+                  preference="console_debug"
+                  label="&consoledebug.label;"
+                  accesskey="&consoledebug.accesskey;"/>
       </groupbox>
     </groupbox>
   </prefpane>
