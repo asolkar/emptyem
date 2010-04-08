@@ -39,18 +39,40 @@ const Ci = Components.interfaces;
 
 var emptyem = {
 
+  //
+  // Preferences
+  //
   prefsb: null,
   override_delete_confirm: false,
   console_debug: false,
-
   select_trash_delete: false,
   select_junk_delete: false,
 
   to_empty_junk: {},
   to_empty_trash: {},
 
+  //
+  // Accounts etc.
+  //
   mail_session: null,
   account_manager: null,
+  servers: null,
+
+  //
+  // Timers and events
+  //
+  trash_timer: null,
+  done_timer: null,
+  trash_event: {
+    notify: function(timer) {
+      emptyem.removeAllTrashFolders();
+    }
+  },
+  done_event: {
+    notify: function(timer) {
+      emptyem.sayAllDone();
+    }
+  },
 
   onLoad: function() {
     var prefs = Cc["@mozilla.org/preferences-service;1"]
@@ -71,14 +93,22 @@ var emptyem = {
 
     this.account_manager = Cc["@mozilla.org/messenger/account-manager;1"]
                           .getService(Ci.nsIMsgAccountManager);
+    this.servers = this.account_manager.allServers;
+
+    //
+    // Initialize timers
+    //
+    trash_timer = Cc["@mozilla.org/timer;1"]
+                    .createInstance(Components.interfaces.nsITimer);
+    done_timer = Cc["@mozilla.org/timer;1"]
+                  .createInstance(Components.interfaces.nsITimer);
 
     //
     // Initialize to_empty arrays
     //
-    var servers = this.account_manager.allServers;
-    for (var i = 0; i < servers.Count(); ++i)
+    for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
       this.to_empty_junk[currentServer.prettyName] = false;
       this.to_empty_trash[currentServer.prettyName] = false;
     }
@@ -179,10 +209,8 @@ var emptyem = {
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
                         "  select_junk_delete = " + this.select_junk_delete);
 
-      var servers = this.account_manager.allServers;
-
-      this.removeAllJunkFolders(servers);
-      this.removeAllTrashFolders(servers);
+      this.removeAllJunkFolders(this.servers);
+      this.removeAllTrashFolders(this.servers);
     }
     catch(ex)
     {
@@ -193,10 +221,10 @@ var emptyem = {
   onToolbarEmptyTrashJunkButtonCommand: function(e) {
     emptyem.onMenuEmptyTrashJunkCommand(e);
   },
-  removeAllJunkFolders: function (servers) {
-    for (var i = 0; i < servers.Count(); ++i)
+  removeAllJunkFolders: function () {
+    for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
 
       if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
         //
@@ -215,20 +243,20 @@ var emptyem = {
       }
     }
   },
-  removeAllTrashFolders: function (servers) {
+  removeAllTrashFolders: function () {
     var all_junk_gone = true;
-    for (var i = 0; i < servers.Count(); ++i)
+    for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
       if (this.to_empty_junk[currentServer.prettyName] == true) {
         all_junk_gone = false;
       }
     }
     if (all_junk_gone == true) {
       this.debugMessage("[Empty 'em] All junk gone. Now cleaning Trash");
-      for (var i = 0; i < servers.Count(); ++i)
+      for (var i = 0; i < this.servers.Count(); ++i)
       {
-        var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+        var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
 
         if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
           if (this.select_trash_delete) {
@@ -240,21 +268,22 @@ var emptyem = {
           }
         }
       }
-      this.sayAllDone(servers);
+      this.sayAllDone();
     } else {
       this.debugMessage("[Empty 'em] All junk not trashed yet. Waiting to empty trash");
-      setTimeout (function () {
-                    emptyem.removeAllTrashFolders(servers)
-                  }, 1000);
+      trash_timer.initWithCallback(
+        emptyem.trash_event,
+        1000,
+        Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
-  sayAllDone: function (servers) {
+  sayAllDone: function () {
     var all_trash_gone = true;
     var serverTypes = "";
 
-    for (var i = 0; i < servers.Count(); ++i)
+    for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
       serverTypes += " " + currentServer.type;
       if (this.to_empty_trash[currentServer.prettyName] == true) {
         all_trash_gone = false;
@@ -267,19 +296,20 @@ var emptyem = {
       //
       var alertsService = Cc["@mozilla.org/alerts-service;1"]
                              .getService(Ci.nsIAlertsService);
-      var num_servers = servers.Count()-1;
+      var num_servers = this.servers.Count()-1;
       alertsService.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
                                           "Empty 'em",
                                           "Emptied selected Trash and Junk folders from " + num_servers
                                             + ((num_servers == 1) ? " server" : " servers"),
                                           false, "", null);
 
-      this.debugMessage("[Empty 'em] Found " + servers.Count() + " servers of types: " + serverTypes);
+      this.debugMessage("[Empty 'em] Found " + this.servers.Count() + " servers of types: " + serverTypes);
     } else {
       this.debugMessage("[Empty 'em] All trash not trashed yet. Waiting to declare done");
-      setTimeout (function () {
-                    emptyem.sayAllDone(servers)
-                  }, 1000);
+      done_timer.initWithCallback(
+        emptyem.done_event,
+        1000,
+        Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
   handleJunkFolder: function (junkFolder) {
