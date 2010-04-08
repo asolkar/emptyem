@@ -5,7 +5,7 @@
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
@@ -31,17 +31,31 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 
 function init() {
-    setTimeout(function () {
-        var extManager = Components.classes["@mozilla.org/extensions/manager;1"]
-                          .getService(Components.interfaces.nsIExtensionManager);
-        var addon = extManager.getItemForID("emptyem@mahesh.asolkar");
-        var version = document.getElementById("emptyem-about-version");
-        version.attributes["value"].nodeValue = addon.version;
-    }, 0);
-    sizeToContent();
+ var event = { notify: function(timer) {  } }
+
+  // Now it is time to create the timer...
+  var timer
+    = Components.classes["@mozilla.org/timer;1"]
+       .createInstance(Components.interfaces.nsITimer);
+
+  // ... and to initialize it, we want to call event.notify() ...
+  // ... one time after exactly ten second.
+  timer.initWithCallback(
+  {
+    notify: function(timer) {
+      var extManager = Components.classes["@mozilla.org/extensions/manager;1"]
+                        .getService(Components.interfaces.nsIExtensionManager);
+      var addon = extManager.getItemForID("emptyem@mahesh.asolkar");
+      var version = document.getElementById("emptyem-about-version");
+      version.attributes["value"].nodeValue = addon.version;
+    }
+  },
+  0,
+  Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+  sizeToContent();
 }
 

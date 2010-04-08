@@ -4,9 +4,9 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>emptyem@mahesh.asolkar</em:id>
     <em:name>Empty 'em</em:name>
-    <em:version>0.55</em:version>
+    <em:version>0.6</em:version>
     <em:creator>Mahesh Asolkar</em:creator>
-    <em:description>Empty Junk and Trash folders easily</em:description>
+    <em:description>Empty all your Trash and Junk folders in one fell swoop!</em:description>
     <em:homepageURL>http://emptyem.mahesha.com</em:homepageURL>
     <em:aboutURL>chrome://emptyem/content/about.xul</em:aboutURL>
     <em:optionsURL>chrome://emptyem/content/options.xul</em:optionsURL>
