@@ -103,6 +103,10 @@ body {
   text-align : left;
 }
 
+p {
+  margin-top : 1.2em;
+}
+
 br.clear {
   clear : both;
   padding : 3px;
@@ -165,6 +169,10 @@ a:hover {
   padding : 8px;
   text-shadow: 0 1px 1px #fff;
 }
+ul {
+	list-style: disc;
+  padding: 1em;
+}
   </style>
 
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
@@ -218,19 +226,30 @@ a:hover {
 
 <h2>Introduction</h2>
 
-Empty 'em is a simple Thunderbird extension that empties Junk and Trash folders from all configured servers. The extension provides a menu item (<span class="menu_type">Tools -&gt; Empty Junk &amp; Trash</span>), a folder pane context menu item, and a toolbar button to do so.
+<p>Empty 'em is a simple Thunderbird extension that empties Junk and Trash folders from all configured servers. The extension provides a menu item (<span class="menu_type">Tools -&gt; Empty Junk &amp; Trash</span>), a folder pane context menu item, and a toolbar button to do so.
+
+<p>Add-on preferences allow you to include/exclude Junk, Trash, none or both folders in emptying process. You can also choose to override delete confirmation for each folders.
+
+<p>To enable debugging, you can enable verbose console messages via preferences.
 
 <h2>Background</h2>
 
 In Thunderbird, I usually have around half-a-dozen email accounts set up. Most of them Gmail accounts. Very often, Gmail's Junk filter catches tons of Junk email and populates the Junk folders in Thunderbird. After manually cleaning up the Inbox folders and deleting unwanted email, the Trash folders are also populated.
 
-Manually going through all the Junk and Trash folders to empty them, is tedious.
+<p>Manually going through all the Junk and Trash folders to empty them, is tedious.
 
-That is what prompted me to write this extension. I hope someone out there finds it helpful too.
+<p>That is what prompted me to write this extension. I hope someone out there finds it helpful too.
 
 <h2>Download</h2>
 
-The add-on is not quite ready to be on the <a href="https://addons.mozilla.org/en-US/thunderbird/">Add-ons for Thunderbird</a> website. But source and installation files (<code>.xpi</code>) files can be found on <a href="http://github.com/asolkar/emptyem/" target="_blank">the project page on GitHub</a>. Feel free to fork!
+<ul>
+  <li>Empty 'em can be obtained from <a href="https://addons.mozilla.org/en-US/thunderbird/addon/129690/">Add-ons for Thunderbird website</a>.</li>
+  <li>Source and installation files (<code>.xpi</code>) files can also be found on <a href="http://github.com/asolkar/emptyem/" target="_blank">the project page on GitHub</a>. Feel free to fork!</li>
+</ul>
+
+<h2>Support/Feedback</h2>
+
+You can use <a href="http://groups.google.com/group/empty-em-support">Empty 'em Support</a> Google Group to seek support, provide feedback or point out bugs.
 
 <h2>Release History</h2>
 
@@ -240,6 +259,13 @@ All the <a href="http://github.com/asolkar/emptyem/downloads">old versions</a> a
 </div> <!-- shrink_wrapper_shell -->
 
 </body>
+
+<!-- Apture stuff -->
+<script id="aptureScript"
+        type="text/javascript"
+        src="http://www.apture.com/js/apture.js?siteToken=7f5c16G" charset="utf-8">
+
+</script>
 
 <!-- Analytics stuff -->
 <script type="text/javascript">
