@@ -239,7 +239,7 @@ var emptyem = {
           if (taggedFolder == null) {
             this.debugMessage("Junk folder probably not configured. Skipping it...");
           } else {
-            var junkFolder = taggedFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
+            var junkFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
 
             //
             // Before emptying the folder, make it up-to-date.
@@ -277,7 +277,7 @@ var emptyem = {
             if (taggedFolder == null) {
               this.debugMessage("Trash folder probably not configured. Skipping it...");
             } else {
-              var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
+              var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
 
               trashFolder.updateFolder(null);
               this.to_empty_trash[currentServer.prettyName] = true;
