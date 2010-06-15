@@ -113,7 +113,7 @@ var emptyem = {
       this.to_empty_trash[currentServer.prettyName] = false;
     }
 
-    this.folderListener.init(this);
+    this.folderListener.init(emptyem);
 
     this.initialized = true;
   },
@@ -225,34 +225,27 @@ var emptyem = {
     {
       var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
 
-      if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
-        //
-        // Deal with Junk folders only if selected
-        //
-        if (this.select_junk_delete) {
-          var taggedFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
+      //
+      // Deal with Junk folders only if selected
+      //
+      if (this.select_junk_delete) {
+        var taggedFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
 
-          //
-          // Proceed only if above returns a non-null value
-          //
-          if (taggedFolder == null) {
-            this.debugMessage("Junk folder probably not configured. Skipping it...");
+        //
+        // Proceed only if above returns a non-null value
+        //
+        if (taggedFolder == null) {
+          this.debugMessage("Junk folder probably not configured. Skipping it...");
+        } else {
+          var junkFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
+          junkFolder.updateFolder(null);
+
+          if (currentServer.type == "imap") {
+            this.to_empty_junk[currentServer.prettyName] = true;
+            this.debugMessage("Registered Junk on " + currentServer.prettyName + " for emptying");
           } else {
-            var junkFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
-
-            //
-            // Before emptying the folder, make it up-to-date.
-            // Then schedule it to be emptied
-            //
-            junkFolder.updateFolder(null);
-
-            if (currentServer.type == "pop3") {
-              this.handleJunkFolder(junkFolder);
-              this.to_empty_junk[currentServer.prettyName] = false;
-            } else {
-              this.to_empty_junk[currentServer.prettyName] = true;
-              this.debugMessage("Registered Junk on " + currentServer.prettyName + " for emptying");
-            }
+            this.handleJunkFolder(junkFolder);
+            this.to_empty_junk[currentServer.prettyName] = false;
           }
         }
       }
@@ -273,26 +266,24 @@ var emptyem = {
       {
         var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
 
-        if ((currentServer.type == "imap") || (currentServer.type == "pop3")) {
-          if (this.select_trash_delete) {
-            var taggedFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+        if (this.select_trash_delete) {
+          var taggedFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
-            //
-            // Proceed only if above returns a non-null value
-            //
-            if (taggedFolder == null) {
-              this.debugMessage("Trash folder probably not configured. Skipping it...");
+          //
+          // Proceed only if above returns a non-null value
+          //
+          if (taggedFolder == null) {
+            this.debugMessage("Trash folder probably not configured. Skipping it...");
+          } else {
+            var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
+            trashFolder.updateFolder(null);
+
+            if (currentServer.type == "imap") {
+              this.to_empty_trash[currentServer.prettyName] = true;
+              this.debugMessage("Registered Trash on " + currentServer.prettyName + " for emptying");
             } else {
-              var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
-              trashFolder.updateFolder(null);
-
-              if (currentServer.type == "pop3") {
-                this.handleTrashFolder(trashFolder);
-                this.to_empty_trash[currentServer.prettyName] = false;
-              } else {
-                this.to_empty_trash[currentServer.prettyName] = true;
-                this.debugMessage("Registered Trash on " + currentServer.prettyName + " for emptying");
-              }
+              this.handleTrashFolder(trashFolder);
+              this.to_empty_trash[currentServer.prettyName] = false;
             }
           }
         }
