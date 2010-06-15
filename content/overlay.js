@@ -203,7 +203,6 @@ var emptyem = {
       this.select_junk_delete = this.prefsb.getBoolPref("select_junk_delete");
       this.console_debug = this.prefsb.getBoolPref("console_debug");
 
-
       this.debugMessage("Prefs\n" +
                         "  override_delete_confirm = " + this.override_delete_confirm + "\n" +
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
@@ -246,7 +245,14 @@ var emptyem = {
             // Then schedule it to be emptied
             //
             junkFolder.updateFolder(null);
-            this.to_empty_junk[currentServer.prettyName] = true;
+
+            if (currentServer.type == "pop3") {
+              this.handleJunkFolder(junkFolder);
+              this.to_empty_junk[currentServer.prettyName] = false;
+            } else {
+              this.to_empty_junk[currentServer.prettyName] = true;
+              this.debugMessage("Registered Junk on " + currentServer.prettyName + " for emptying");
+            }
           }
         }
       }
@@ -278,9 +284,15 @@ var emptyem = {
               this.debugMessage("Trash folder probably not configured. Skipping it...");
             } else {
               var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
-
               trashFolder.updateFolder(null);
-              this.to_empty_trash[currentServer.prettyName] = true;
+
+              if (currentServer.type == "pop3") {
+                this.handleTrashFolder(trashFolder);
+                this.to_empty_trash[currentServer.prettyName] = false;
+              } else {
+                this.to_empty_trash[currentServer.prettyName] = true;
+                this.debugMessage("Registered Trash on " + currentServer.prettyName + " for emptying");
+              }
             }
           }
         }
