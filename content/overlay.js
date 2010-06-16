@@ -240,6 +240,11 @@ var emptyem = {
           var junkFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
           junkFolder.updateFolder(null);
 
+          //
+          // IMAP folder actions are asynchronous. They are scheduled, and tracked
+          // by nsITimers.
+          // All other folder actions are synchronous. They are carried out in line.
+          //
           if (currentServer.type == "imap") {
             this.to_empty_junk[currentServer.prettyName] = true;
             this.debugMessage("Registered Junk on " + currentServer.prettyName + " for emptying");
@@ -253,6 +258,10 @@ var emptyem = {
   },
   removeAllTrashFolders: function () {
     var all_junk_gone = true;
+
+    //
+    // Wait for all Junk folders to be emptied, then deal with Trash folders
+    //
     for (var i = 0; i < this.servers.Count(); ++i)
     {
       var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
@@ -278,6 +287,9 @@ var emptyem = {
             var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
             trashFolder.updateFolder(null);
 
+            //
+            // IMAP - schedule, Others - act...
+            //
             if (currentServer.type == "imap") {
               this.to_empty_trash[currentServer.prettyName] = true;
               this.debugMessage("Registered Trash on " + currentServer.prettyName + " for emptying");
@@ -301,6 +313,9 @@ var emptyem = {
     var all_trash_gone = true;
     var serverTypes = "";
 
+    //
+    // Wait for all Trash folders to be emptied, then declare done
+    //
     for (var i = 0; i < this.servers.Count(); ++i)
     {
       var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
@@ -361,6 +376,10 @@ var emptyem = {
     init: function (owner) {
       my_parent = owner;
     },
+    //
+    // On timer events (FolderLoaded) update status of scheduled
+    // folder actions (relevant to IMAP folders)
+    //
     OnItemEvent: function OnItemEvent(folder, the_event) {
       var event_type = the_event.toString();
       my_parent.debugMessage("Listener - received folder event " + event_type +
