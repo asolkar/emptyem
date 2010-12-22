@@ -34,8 +34,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+if (typeof Cc == "undefined") {
+  var Cc = Components.classes;
+}
+if (typeof Ci == "undefined") {
+  var Ci = Components.interfaces;
+}
 
 var emptyem = {
 
