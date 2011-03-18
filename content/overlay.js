@@ -33,7 +33,37 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+//
+// How does this extension work:
+// -----------------------------
+//
+// * The extension is triggered either by 'Empty Junk & Trash' button, or by
+//   the 'Empty Junk & Trash' menu item.
+// * On any of the above events, onMenuEmptyTrashJunkCommand function is called.
+// * This function first updates its configuration by reading its configuration
+//   items - in case they were updated they were last read.
+// * Then, depending on whether the folder is selected to be emptied, each Junk
+//   and Trash is emptied.
+// * The way emptying of folders works on IMAP and POP3 accounts is different.
+// * Emptying in POP3 account is synchronous (blocking). When emptyJunk or
+//   emptyTrash for a POP3 is called, it returns only after the folder is empty.
+//   As such, empty* functions for POP3 accounts can be called one after the
+//   other.
+// * Emptying in IMAP account is asynchronous (non-blocking). When emptyJunk or
+//   emptyTrash for an IMAP folder is called, it merely registers the folder to
+//   be emptied, and returns immediately. As a result, there needs to be a polling
+//   mechanism to check periodically to make sure that all registered 'empty'
+//   operation indeed finished.
+// * To do so, the extension uses nsTimer objects. After registering IMAP Junk/Trash
+//   folders to be emptied, 1 second timers are used to continuously poll the
+//   status of registered folders. When all the outstanding 'empty' operaton
+//   finish, the extension proceeds.
 
+//
+// If Cc/Ci are defined elsewhere (like some other extensions) 'redeclaration'
+// errors can result. So make sure that the variables are undefined before
+// declaring them.
+//
 if (typeof Cc == "undefined") {
   var Cc = Components.classes;
 }
@@ -41,6 +71,10 @@ if (typeof Ci == "undefined") {
   var Ci = Components.interfaces;
 }
 
+//
+// This is the main extension class. 'onLoad' method of this class is registered
+// with Thunderbird so it is loaded when Thunderbird starts.
+//
 var emptyem = {
 
   //
@@ -52,32 +86,59 @@ var emptyem = {
   select_trash_delete: false,
   select_junk_delete: false,
 
+  //
+  // These arrays hold accounts whose Junk/Trash folders are registered to be
+  // emptied, and are pending. When both these arrays become empty, extension's
+  // job is done.
+  //
   to_empty_junk: {},
   to_empty_trash: {},
 
   //
-  // Accounts etc.
-  //
+  // This is a handle to the 'session' service of Thunderbird. It is used to
+  // register callback on any change in any folder currently present in any
+  // of the configured accounts in Thunderbird.
   mail_session: null,
+
+  //
+  // This is a handle to the 'account manager' in Thunderbird. It is used to gain
+  // access to properties of accounts configured in Thunderbird.
+  //
   account_manager: null,
+
+  //
+  // An array of all configured servers
+  //
   servers: null,
 
   //
-  // Timers and events
+  // Timers and events. See documentation above for the use of these timers
   //
   trash_timer: null,
   done_timer: null,
+
+  //
+  // This event is used to indicate that all outstanding 'emptyJunk' operations
+  // are done and it is now time to empty all Trash folders.
+  //
   trash_event: {
     notify: function(timer) {
-      emptyem.removeAllTrashFolders();
+      emptyem.emptyAllTrashFolders();
     }
   },
+  //
+  // This event is used to indicate that all outstanding 'emptyTrash' operations
+  // are done and it is now OK to signal that the extension is done.
+  //
   done_event: {
     notify: function(timer) {
       emptyem.sayAllDone();
     }
   },
 
+  //
+  // Loads the extension. Sets up services, handles, timers etc.
+  //
   onLoad: function() {
     var prefs = Cc["@mozilla.org/preferences-service;1"]
                    .getService(Ci.nsIPrefService);
@@ -122,6 +183,9 @@ var emptyem = {
     this.initialized = true;
   },
 
+  //
+  // Shortcut for formatted console message
+  //
   debugMessage: function (txt) {
     if (this.console_debug == true) {
       Application.console.log ("[Empty 'em] " + txt);
@@ -133,6 +197,7 @@ var emptyem = {
     // see http://kb.mozillazine.org/Adding_items_to_menus
     document.getElementById("context-emptyem-empty-trash-junk").hidden = 0;
   },
+
   //
   // Following function borrowed from:
   //   http://mxr.mozilla.org/comm-central/source/mail/base/content/folderPane.js#2216
@@ -212,8 +277,8 @@ var emptyem = {
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
                         "  select_junk_delete = " + this.select_junk_delete);
 
-      this.removeAllJunkFolders(this.servers);
-      this.removeAllTrashFolders(this.servers);
+      this.emptyAllJunkFolders(this.servers);
+      this.emptyAllTrashFolders(this.servers);
     }
     catch(ex)
     {
@@ -224,7 +289,7 @@ var emptyem = {
   onToolbarEmptyTrashJunkButtonCommand: function(e) {
     emptyem.onMenuEmptyTrashJunkCommand(e);
   },
-  removeAllJunkFolders: function () {
+  emptyAllJunkFolders: function () {
     for (var i = 0; i < this.servers.Count(); ++i)
     {
       var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
@@ -260,7 +325,7 @@ var emptyem = {
       }
     }
   },
-  removeAllTrashFolders: function () {
+  emptyAllTrashFolders: function () {
     var all_junk_gone = true;
 
     //
@@ -375,6 +440,14 @@ var emptyem = {
       }
     }
   },
+  //
+  // This sub-class is registered as 'FolderListener' callback. Its sole purpose
+  // in life is to monitor 'FolderLoaded' event on Junk and Trash folders. If
+  // the folder for which the event was triggered matches one of the outstanding
+  // folders in 'to_empty_*' arrays, mark that folder done - delete that item
+  // from the 'to_empty_*' array. There are other places where the extension waits
+  // for these arrays to be empty.
+  //
   folderListener: {
     my_parent: null,
     init: function (owner) {
@@ -420,4 +493,8 @@ var emptyem = {
     }
   }
 };
+
+//
+// Register this extension to be loaded when Thunderbird starts.
+//
 window.addEventListener("load", function(e) { emptyem.onLoad(e); }, false);
