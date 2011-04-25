@@ -123,7 +123,7 @@ var emptyem = {
   //
   trash_event: {
     notify: function(timer) {
-      emptyem.emptyAllTrashFolders();
+      emptyem.empty_all_trash_folders();
     }
   },
   //
@@ -132,7 +132,7 @@ var emptyem = {
   //
   done_event: {
     notify: function(timer) {
-      emptyem.sayAllDone();
+      emptyem.say_all_done();
     }
   },
 
@@ -154,7 +154,7 @@ var emptyem = {
     this.mail_session = Cc["@mozilla.org/messenger/services/session;1"]
                         .getService(Ci.nsIMsgMailSession);
 
-    this.mail_session.AddFolderListener(this.folderListener, Ci.nsIFolderListener.event);
+    this.mail_session.AddFolderListener(this.folder_listener, Ci.nsIFolderListener.event);
 
     this.account_manager = Cc["@mozilla.org/messenger/account-manager;1"]
                           .getService(Ci.nsIMsgAccountManager);
@@ -173,12 +173,12 @@ var emptyem = {
     //
     for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
-      this.to_empty_junk[currentServer.prettyName] = false;
-      this.to_empty_trash[currentServer.prettyName] = false;
+      var current_server = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      this.to_empty_junk[current_server.prettyName] = false;
+      this.to_empty_trash[current_server.prettyName] = false;
     }
 
-    this.folderListener.init(emptyem);
+    this.folder_listener.init(emptyem);
 
     this.initialized = true;
   },
@@ -186,7 +186,7 @@ var emptyem = {
   //
   // Shortcut for formatted console message
   //
-  debugMessage: function (txt) {
+  debug_message: function (txt) {
     if (this.console_debug == true) {
       Application.console.log ("[Empty 'em] " + txt);
     }
@@ -202,20 +202,20 @@ var emptyem = {
   // Following function borrowed from:
   //   http://mxr.mozilla.org/comm-central/source/mail/base/content/folderPane.js#2216
   //
-  checkConfirmationPrompt: function ftc_confirm(aCommand) {
-    var showPrompt = true;
+  check_confirmation_prompt: function ftc_confirm(aCommand) {
+    var show_prompt = true;
     try {
       var pref = Cc["@mozilla.org/preferences-service;1"]
                     .getService(Ci.nsIPrefBranch);
-      showPrompt = !pref.getBoolPref("mail." + aCommand + ".dontAskAgain");
+      show_prompt = !pref.getBoolPref("mail." + aCommand + ".dontAskAgain");
     } catch (ex) {}
 
-    if (showPrompt) {
+    if (show_prompt) {
       var checkbox = {value:false};
-      var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+      var prompt_service = Cc["@mozilla.org/embedcomp/prompt-service;1"]
                              .getService(Ci.nsIPromptService);
       var bundle = document.getElementById("bundle_messenger");
-      var ok = promptService.confirmEx(window,
+      var ok = prompt_service.confirmEx(window,
                                        bundle.getString(aCommand + "Title"),
                                        bundle.getString(aCommand + "Message"),
                                        promptService.STD_YES_NO_BUTTONS,
@@ -229,32 +229,32 @@ var emptyem = {
     }
     return true;
   },
-  emptyTrashFolder: function(folder) {
-    this.debugMessage("Emptying Trash from folder ("
+  empty_trash_folder: function(folder) {
+    this.debug_message("Emptying Trash from folder ("
                       + folder.prettiestName + " on "
                       + folder.server.prettyName + ") override = "
                       + this.override_delete_confirm);
     folder.emptyTrash(null, null);
   },
-  emptyJunkFolder: function(folder) {
-    this.debugMessage("Emptying Junk from folder ("
+  empty_junk_folder: function(folder) {
+    this.debug_message("Emptying Junk from folder ("
                       + folder.prettiestName + " on "
                       + folder.server.prettyName + ") override = "
                       + this.override_delete_confirm);
-    var junkMsgs = Cc["@mozilla.org/array;1"]
+    var junk_msgs = Cc["@mozilla.org/array;1"]
                      .createInstance(Ci.nsIMutableArray);
     var enumerator = folder.messages;
     while (enumerator.hasMoreElements())
     {
-      var msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-      junkMsgs.appendElement(msgHdr, false);
+      var msg_hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+      junk_msgs.appendElement(msg_hdr, false);
     }
-    if (junkMsgs.length) {
-      folder.deleteMessages(junkMsgs, msgWindow, false, false, null, true);
+    if (junk_msgs.length) {
+      folder.deleteMessages(junk_msgs, msgWindow, false, false, null, true);
     }
   },
   onMenuEmptyTrashJunkCommand: function(e) {
-    // this.debugMessage("Empty 'em on it!");
+    // this.debug_message("Empty 'em on it!");
     // Cc["@mozilla.org/embedcomp/prompt-service;1"]
     //   .getService(Ci.nsIPromptService)
     //   .alert(window, "I Say!", "Empty 'em on it!");
@@ -272,60 +272,60 @@ var emptyem = {
       this.select_junk_delete = this.prefsb.getBoolPref("select_junk_delete");
       this.console_debug = this.prefsb.getBoolPref("console_debug");
 
-      this.debugMessage("Prefs\n" +
+      this.debug_message("Prefs\n" +
                         "  override_delete_confirm = " + this.override_delete_confirm + "\n" +
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
                         "  select_junk_delete = " + this.select_junk_delete);
 
-      this.emptyAllJunkFolders(this.servers);
-      this.emptyAllTrashFolders(this.servers);
+      this.empty_all_junk_folders(this.servers);
+      this.empty_all_trash_folders(this.servers);
     }
     catch(ex)
     {
-      this.debugMessage("Exception - " + ex);
-      this.debugMessage("Stack - " + ex.stack);
+      this.debug_message("Exception - " + ex);
+      this.debug_message("Stack - " + ex.stack);
     }
   },
   onToolbarEmptyTrashJunkButtonCommand: function(e) {
     emptyem.onMenuEmptyTrashJunkCommand(e);
   },
-  emptyAllJunkFolders: function () {
+  empty_all_junk_folders: function () {
     for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      var current_server = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
 
       //
       // Deal with Junk folders only if selected
       //
       if (this.select_junk_delete) {
-        var taggedFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
+        var tagged_folder = current_server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
 
         //
         // Proceed only if above returns a non-null value
         //
-        if (taggedFolder == null) {
-          this.debugMessage("Junk folder probably not configured. Skipping it...");
+        if (tagged_folder == null) {
+          this.debug_message("Junk folder probably not configured. Skipping it...");
         } else {
-          var junkFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
-          junkFolder.updateFolder(null);
+          var junk_folder = tagged_folder.QueryInterface(Ci.nsIMsgFolder);
+          junk_folder.updateFolder(null);
 
           //
           // IMAP folder actions are asynchronous. They are scheduled, and tracked
           // by nsITimers.
           // All other folder actions are synchronous. They are carried out in line.
           //
-          if (currentServer.type == "imap") {
-            this.to_empty_junk[currentServer.prettyName] = true;
-            this.debugMessage("Registered Junk on " + currentServer.prettyName + " for emptying");
+          if (current_server.type == "imap") {
+            this.to_empty_junk[current_server.prettyName] = true;
+            this.debug_message("Registered Junk on " + current_server.prettyName + " for emptying");
           } else {
-            this.handleJunkFolder(junkFolder);
-            this.to_empty_junk[currentServer.prettyName] = false;
+            this.handle_junk_folder(junk_folder);
+            this.to_empty_junk[current_server.prettyName] = false;
           }
         }
       }
     }
   },
-  emptyAllTrashFolders: function () {
+  empty_all_trash_folders: function () {
     var all_junk_gone = true;
 
     //
@@ -333,110 +333,110 @@ var emptyem = {
     //
     for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
-      if (this.to_empty_junk[currentServer.prettyName] == true) {
+      var current_server = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      if (this.to_empty_junk[current_server.prettyName] == true) {
         all_junk_gone = false;
       }
     }
     if (all_junk_gone == true) {
-      this.debugMessage("All junk gone. Now cleaning Trash");
+      this.debug_message("All junk gone. Now cleaning Trash");
       for (var i = 0; i < this.servers.Count(); ++i)
       {
-        var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+        var current_server = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
 
         if (this.select_trash_delete) {
-          var taggedFolder = currentServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+          var tagged_folder = current_server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
           //
           // Proceed only if above returns a non-null value
           //
-          if (taggedFolder == null) {
-            this.debugMessage("Trash folder probably not configured. Skipping it...");
+          if (tagged_folder == null) {
+            this.debug_message("Trash folder probably not configured. Skipping it...");
           } else {
-            var trashFolder = taggedFolder.QueryInterface(Ci.nsIMsgFolder);
-            trashFolder.updateFolder(null);
+            var trash_folder = tagged_folder.QueryInterface(Ci.nsIMsgFolder);
+            trash_folder.updateFolder(null);
 
             //
             // IMAP - schedule, Others - act...
             //
-            if (currentServer.type == "imap") {
-              this.to_empty_trash[currentServer.prettyName] = true;
-              this.debugMessage("Registered Trash on " + currentServer.prettyName + " for emptying");
+            if (current_server.type == "imap") {
+              this.to_empty_trash[current_server.prettyName] = true;
+              this.debug_message("Registered Trash on " + current_server.prettyName + " for emptying");
             } else {
-              this.handleTrashFolder(trashFolder);
-              this.to_empty_trash[currentServer.prettyName] = false;
+              this.handle_trash_folder(trash_folder);
+              this.to_empty_trash[current_server.prettyName] = false;
             }
           }
         }
       }
-      this.sayAllDone();
+      this.say_all_done();
     } else {
-      this.debugMessage("All junk not trashed yet. Waiting to empty trash");
+      this.debug_message("All junk not trashed yet. Waiting to empty trash");
       trash_timer.initWithCallback(
         emptyem.trash_event,
         1000,
         Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
-  sayAllDone: function () {
+  say_all_done: function () {
     var all_trash_gone = true;
-    var serverTypes = "";
+    var server_types = "";
 
     //
     // Wait for all Trash folders to be emptied, then declare done
     //
     for (var i = 0; i < this.servers.Count(); ++i)
     {
-      var currentServer = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
-      serverTypes += " " + currentServer.type;
-      if (this.to_empty_trash[currentServer.prettyName] == true) {
+      var current_server = this.servers.QueryElementAt(i, Ci.nsIMsgIncomingServer);
+      server_types += " " + current_server.type;
+      if (this.to_empty_trash[current_server.prettyName] == true) {
         all_trash_gone = false;
       }
     }
     if (all_trash_gone == true) {
-      this.debugMessage("All trash gone. Now declaring done");
+      this.debug_message("All trash gone. Now declaring done");
       //
       // Generate an alert after everything is done
       //
-      var alertsService = Cc["@mozilla.org/alerts-service;1"]
+      var alerts_service = Cc["@mozilla.org/alerts-service;1"]
                              .getService(Ci.nsIAlertsService);
       var num_servers = this.servers.Count()-1;
-      alertsService.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
+      alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
                                           "Empty 'em",
                                           "Emptied selected Trash and Junk folders from " + num_servers
                                             + ((num_servers == 1) ? " server" : " servers"),
                                           false, "", null);
 
-      this.debugMessage("Found " + this.servers.Count() + " servers of types: " + serverTypes);
+      this.debug_message("Found " + this.servers.Count() + " servers of types: " + server_types);
     } else {
-      this.debugMessage("All trash not trashed yet. Waiting to declare done");
+      this.debug_message("All trash not trashed yet. Waiting to declare done");
       done_timer.initWithCallback(
         emptyem.done_event,
         1000,
         Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
-  handleJunkFolder: function (junkFolder) {
+  handle_junk_folder: function (junk_folder) {
     //
     // Check if delete confirmation is needed
     //
     if (this.override_delete_confirm) {
-      this.emptyJunkFolder(junkFolder);
+      this.empty_junk_folder(junk_folder);
     } else {
-      if (this.checkConfirmationPrompt("emptyJunk")) {
-        this.emptyJunkFolder(junkFolder);
+      if (this.check_confirmation_prompt("emptyJunk")) {
+        this.empty_junk_folder(junk_folder);
       }
     }
   },
-  handleTrashFolder: function (trashFolder) {
+  handle_trash_folder: function (trash_folder) {
     //
     // Check if delete confirmation is needed
     //
     if (this.override_delete_confirm) {
-      this.emptyTrashFolder(trashFolder);
+      this.empty_trash_folder(trash_folder);
     } else {
-      if (this.checkConfirmationPrompt("emptyTrash")) {
-        this.emptyTrashFolder(trashFolder);
+      if (this.check_confirmation_prompt("emptyTrash")) {
+        this.empty_trash_folder(trash_folder);
       }
     }
   },
@@ -448,7 +448,7 @@ var emptyem = {
   // from the 'to_empty_*' array. There are other places where the extension waits
   // for these arrays to be empty.
   //
-  folderListener: {
+  folder_listener: {
     my_parent: null,
     init: function (owner) {
       my_parent = owner;
@@ -459,32 +459,32 @@ var emptyem = {
     //
     OnItemEvent: function OnItemEvent(folder, the_event) {
       var event_type = the_event.toString();
-      my_parent.debugMessage("Listener - received folder event " + event_type +
+      my_parent.debug_message("Listener - received folder event " + event_type +
                               " folder " + folder.name +
                               "\n");
       if (event_type == "FolderLoaded") {
         if (folder.getFlag(Ci.nsMsgFolderFlags.Trash) == true) {
           if (my_parent.to_empty_trash[folder.server.prettyName] == true) {
-            my_parent.debugMessage("Listener Emptying folder ("
+            my_parent.debug_message("Listener Emptying folder ("
                                     + folder.prettiestName + " on "
                                     + folder.server.prettyName + ")");
-            my_parent.handleTrashFolder(folder);
+            my_parent.handle_trash_folder(folder);
             my_parent.to_empty_trash[folder.server.prettyName] = false;
           } else {
-            my_parent.debugMessage("Listener unsolicited ("
+            my_parent.debug_message("Listener unsolicited ("
                                     + folder.prettiestName + " on "
                                     + folder.server.prettyName + ")");
           }
         }
         if (folder.getFlag(Ci.nsMsgFolderFlags.Junk) == true) {
           if (my_parent.to_empty_junk[folder.server.prettyName] == true) {
-            my_parent.debugMessage("Listener Emptying folder ("
+            my_parent.debug_message("Listener Emptying folder ("
                                     + folder.prettiestName + " on "
                                     + folder.server.prettyName + ")");
-            my_parent.handleJunkFolder(folder);
+            my_parent.handle_junk_folder(folder);
             my_parent.to_empty_junk[folder.server.prettyName] = false;
           } else {
-            my_parent.debugMessage("Listener unsolicited ("
+            my_parent.debug_message("Listener unsolicited ("
                                     + folder.prettiestName + " on "
                                     + folder.server.prettyName + ")");
           }
