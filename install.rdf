@@ -3,6 +3,7 @@
  xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>emptyem@mahesh.asolkar</em:id>
+    <em:type>2</em:type>
     <em:name>Empty 'em</em:name>
     <em:version>0.785</em:version>
     <em:creator>Mahesh Asolkar</em:creator>
