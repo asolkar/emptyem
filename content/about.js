@@ -47,11 +47,28 @@ function init() {
   timer.initWithCallback(
   {
     notify: function(timer) {
-      var extManager = Components.classes["@mozilla.org/extensions/manager;1"]
-                        .getService(Components.interfaces.nsIExtensionManager);
-      var addon = extManager.getItemForID("emptyem@mahesh.asolkar");
       var version = document.getElementById("emptyem-about-version");
-      version.attributes["value"].nodeValue = addon.version;
+      var use_old_addon_manager = 0;
+
+      try {
+        Components.utils.import("resource://gre/modules/AddonManager.jsm");
+      } catch (ex) {
+        use_old_addon_manager = 1;
+      }
+      if (use_old_addon_manager == 0) {
+        Application.console.log ("[Empty 'em] Using new AddonManager");
+        AddonManager.getAddonByID(
+          'emptyem@mahesh.asolkar',
+          function (addon) {
+            version.attributes["value"].nodeValue = addon.version;
+          });
+      } else {
+        Application.console.log ("[Empty 'em] Using old AddonManager");
+        var extManager = Components.classes["@mozilla.org/extensions/manager;1"]
+                          .getService(Components.interfaces.nsIExtensionManager);
+        var addon = extManager.getItemForID("emptyem@mahesh.asolkar");
+        version.attributes["value"].nodeValue = addon.version;
+      }
     }
   },
   0,
