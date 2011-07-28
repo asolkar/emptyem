@@ -218,7 +218,7 @@ var emptyem = {
       var ok = prompt_service.confirmEx(window,
                                        bundle.getString(aCommand + "Title"),
                                        bundle.getString(aCommand + "Message"),
-                                       promptService.STD_YES_NO_BUTTONS,
+                                       prompt_service.STD_YES_NO_BUTTONS,
                                        null, null, null,
                                        bundle.getString(aCommand + "DontAsk"),
                                        checkbox) == 0;
