@@ -154,8 +154,6 @@ var emptyem = {
     this.mail_session = Cc["@mozilla.org/messenger/services/session;1"]
                         .getService(Ci.nsIMsgMailSession);
 
-    this.mail_session.AddFolderListener(this.folder_listener, Ci.nsIFolderListener.event);
-
     this.account_manager = Cc["@mozilla.org/messenger/account-manager;1"]
                           .getService(Ci.nsIMsgAccountManager);
     this.servers = this.account_manager.allServers;
@@ -276,6 +274,9 @@ var emptyem = {
                         "  override_delete_confirm = " + this.override_delete_confirm + "\n" +
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
                         "  select_junk_delete = " + this.select_junk_delete);
+
+      this.debug_message("Activating FolderListener");
+      this.mail_session.AddFolderListener(this.folder_listener, Ci.nsIFolderListener.event);
 
       this.empty_all_junk_folders(this.servers);
       this.empty_all_trash_folders(this.servers);
@@ -408,6 +409,9 @@ var emptyem = {
                                           false, "", null);
 
       this.debug_message("Found " + this.servers.Count() + " servers of types: " + server_types);
+
+      this.mail_session.RemoveFolderListener(this.folder_listener, Ci.nsIFolderListener.event);
+      this.debug_message("Deactivated FolderListener");
     } else {
       this.debug_message("All trash not trashed yet. Waiting to declare done");
       done_timer.initWithCallback(
