@@ -83,6 +83,7 @@ var emptyem = {
   prefsb: null,
   override_delete_confirm: false,
   console_debug: false,
+  disable_done_notification: false,
   select_trash_delete: false,
   select_junk_delete: false,
 
@@ -269,9 +270,12 @@ var emptyem = {
       this.select_trash_delete = this.prefsb.getBoolPref("select_trash_delete");
       this.select_junk_delete = this.prefsb.getBoolPref("select_junk_delete");
       this.console_debug = this.prefsb.getBoolPref("console_debug");
+      this.disable_done_notification = this.prefsb.getBoolPref("disable_done_notification");
 
       this.debug_message("Prefs\n" +
                         "  override_delete_confirm = " + this.override_delete_confirm + "\n" +
+                        "  console_debug = " + this.console_debug + "\n" +
+                        "  disable_done_notification = " + this.disable_done_notification + "\n" +
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
                         "  select_junk_delete = " + this.select_junk_delete);
 
@@ -399,14 +403,17 @@ var emptyem = {
       //
       // Generate an alert after everything is done
       //
-      var alerts_service = Cc["@mozilla.org/alerts-service;1"]
-                             .getService(Ci.nsIAlertsService);
       var num_servers = this.servers.Count()-1;
-      alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
-                                          "Empty 'em",
-                                          "Emptied selected Trash and Junk folders from " + num_servers
-                                            + ((num_servers == 1) ? " server" : " servers"),
-                                          false, "", null);
+
+      if (this.disable_done_notification == false) {
+        var alerts_service = Cc["@mozilla.org/alerts-service;1"]
+                               .getService(Ci.nsIAlertsService);
+        alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
+                                            "Empty 'em",
+                                            "Emptied selected Trash and Junk folders from " + num_servers
+                                              + ((num_servers == 1) ? " server" : " servers"),
+                                            false, "", null);
+      }
 
       this.debug_message("Found " + this.servers.Count() + " servers of types: " + server_types);
 

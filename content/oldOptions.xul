@@ -54,6 +54,9 @@
       <preference id="console_debug"
                   name="extensions.emptyem.console_debug"
                   type="bool"/>
+      <preference id="disable_done_notification"
+                  name="extensions.emptyem.disable_done_notification"
+                  type="bool"/>
     </preferences>
 
     <groupbox>
@@ -66,6 +69,10 @@
                 preference="console_debug"
                 label="&consoledebug.label;"
                 accesskey="&consoledebug.accesskey;"/>
+      <checkbox id="disabledonenotification"
+                preference="disable_done_notification"
+                label="&disabledonenotification.label;"
+                accesskey="&disabledonenotification.accesskey;"/>
       <groupbox>
         <caption label="&prefwindow.selectionheading;"/>
         <checkbox id="selecttrashdelete"

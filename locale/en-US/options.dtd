@@ -19,3 +19,7 @@
 <!ENTITY consoledebug.label "Enable console debug messages">
 <!ENTITY consoledebug.description "Check this box to enable debug messages in Error Console. Provide these messages along with bug reports you file">
 <!ENTITY consoledebug.accesskey "D">
+
+<!ENTITY disabledonenotification.label "Disable done notification">
+<!ENTITY disabledonenotification.description "Check this box to disable notification that appears after all configured folders have been emptied">
+<!ENTITY disabledonenotification.accesskey "N">

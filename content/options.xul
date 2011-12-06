@@ -54,5 +54,9 @@
             desc="&consoledebug.description;"
             pref="extensions.emptyem.console_debug"
             type="bool" />
+  <setting  title="&disabledonenotification.label;"
+            desc="&disabledonenotification.description;"
+            pref="extensions.emptyem.disable_done_notification"
+            type="bool" />
 </vbox>
 

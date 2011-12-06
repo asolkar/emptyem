@@ -10,3 +10,5 @@
 <!ENTITY selectjunkdelete.accesskey "J">
 <!ENTITY consoledebug.label "Enable console debug messages">
 <!ENTITY consoledebug.accesskey "D">
+<!ENTITY disabledonenotification.label "Disable done notification">
+<!ENTITY disabledonenotification.accesskey "N">
