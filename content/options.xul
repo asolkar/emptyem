@@ -35,48 +35,24 @@
   - 
   - ***** END LICENSE BLOCK ***** -->
 
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<!DOCTYPE prefwindow SYSTEM "chrome://emptyem/locale/prefwindow.dtd">
-<prefwindow id="emptyemPreferences"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            title="&prefwindow.title;">
-  <prefpane id="pane1" label="&pane1.title;">
-    <preferences>
-      <preference id="override_delete_confirm"
-                  name="extensions.emptyem.override_delete_confirm"
-                  type="bool"/>
-      <preference id="select_trash_delete"
-                  name="extensions.emptyem.select_trash_delete"
-                  type="bool"/>
-      <preference id="select_junk_delete"
-                  name="extensions.emptyem.select_junk_delete"
-                  type="bool"/>
-      <preference id="console_debug"
-                  name="extensions.emptyem.console_debug"
-                  type="bool"/>
-    </preferences>
+<!DOCTYPE options SYSTEM "chrome://emptyem/locale/options.dtd">
 
-    <groupbox>
-      <caption label="&prefwindow.heading;"/>
-      <checkbox id="overridedeleteconfirm"
-                preference="override_delete_confirm"
-                label="&overridedeleteconfirm.label;"
-                accesskey="&overridedeleteconfirm.accesskey;"/>
-      <checkbox id="consoledebug"
-                preference="console_debug"
-                label="&consoledebug.label;"
-                accesskey="&consoledebug.accesskey;"/>
-      <groupbox>
-        <caption label="&prefwindow.selectionheading;"/>
-        <checkbox id="selecttrashdelete"
-                  preference="select_trash_delete"
-                  label="&selecttrashdelete.label;"
-                  accesskey="&selecttrashdelete.accesskey;"/>
-        <checkbox id="selectjunkdelete"
-                  preference="select_junk_delete"
-                  label="&selectjunkdelete.label;"
-                  accesskey="&selectjunkdelete.accesskey;"/>
-      </groupbox>
-    </groupbox>
-  </prefpane>
-</prefwindow>
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <setting  title="&overridedeleteconfirm.label;"
+            desc="&overridedeleteconfirm.description;"
+            pref="extensions.emptyem.override_delete_confirm"
+            type="bool" />
+  <setting  title="&selecttrashdelete.label;"
+            desc="&selecttrashdelete.description;"
+            pref="extensions.emptyem.select_trash_delete"
+            type="bool" />
+  <setting  title="&selectjunkdelete.label;"
+            desc="&selectjunkdelete.description;"
+            pref="extensions.emptyem.select_junk_delete"
+            type="bool" />
+  <setting  title="&consoledebug.label;"
+            desc="&consoledebug.description;"
+            pref="extensions.emptyem.console_debug"
+            type="bool" />
+</vbox>
+

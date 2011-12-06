@@ -1,0 +1,21 @@
+<!ENTITY prefwindow.title "Empty 'em preferences">
+<!ENTITY pane1.title "Empty 'em preferences">
+<!ENTITY prefwindow.heading "Set Empty 'em preferences:">
+
+<!ENTITY overridedeleteconfirm.label "Override folder's confirmation setting">
+<!ENTITY overridedeleteconfirm.accesskey "O">
+<!ENTITY overridedeleteconfirm.description "By default, Thunderbird will prompt you to confirm deletion of selected folders. Check this box to override this and suppress the conform dialog">
+
+<!ENTITY prefwindow.selectionheading "Select which folders to include:">
+
+<!ENTITY selecttrashdelete.label "Include Trash folders">
+<!ENTITY selecttrashdelete.description "Include Trash folders in the process of emptying">
+<!ENTITY selecttrashdelete.accesskey "T">
+
+<!ENTITY selectjunkdelete.label "Include Junk folders">
+<!ENTITY selectjunkdelete.description "Include Junk folders in the process of emptying">
+<!ENTITY selectjunkdelete.accesskey "J">
+
+<!ENTITY consoledebug.label "Enable console debug messages">
+<!ENTITY consoledebug.description "Check this box to enable debug messages in Error Console. Provide these messages along with bug reports you file">
+<!ENTITY consoledebug.accesskey "D">
