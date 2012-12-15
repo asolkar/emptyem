@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Empty 'em : Empty all your Trash and Junk folders in one fell swoop!" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Empty 'em</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/asolkar/emptyem">View on GitHub</a>
+
+          <h1 id="project_title">Empty 'em</h1>
+          <h2 id="project_tagline">Empty all your Trash and Junk folders in one fell swoop!</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/asolkar/emptyem/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/asolkar/emptyem/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>Introduction</h3>
+
+<p>Empty 'em is a simple Thunderbird extension that empties Junk and Trash folders from all configured servers. The extension provides a menu item (<code>Tools</code> -&gt; <code>Empty Junk &amp; Trash</code>), a folder pane context menu item, and a toolbar button to do so.</p>
+
+<p>Add-on preferences allow you to include/exclude Junk, Trash, none or both folders in emptying process. You can also choose to override delete confirmation for each folders.</p>
+
+<p>To enable debugging, you can enable verbose console messages via preferences.</p>
+
+<h3>Background</h3>
+
+<p>In Thunderbird, I usually have around half-a-dozen email accounts set up. Most of them Gmail accounts. Very often, Gmail's Junk filter catches tons of Junk email and populates the Junk folders in Thunderbird. After manually cleaning up the Inbox folders and deleting unwanted email, the Trash folders are also populated.</p>
+
+<p>Manually going through all the Junk and Trash folders to empty them, is tedious.</p>
+
+<p>That is what prompted me to write this extension. I hope someone out there finds it helpful too.</p>
+
+<h3>Download</h3>
+
+<ul>
+<li>Empty 'em can be obtained from <a href="https://addons.mozilla.org/en-US/thunderbird/addon/empty-em/">Add-ons for Thunderbird website</a>
+</li>
+<li>Feel free to fork this repository. You can generate the <code>.xpi</code> file with the following command:</li>
+</ul><pre><code>  % cd .../emptyem
+  % sh ./build.sh
+</code></pre>
+
+<h3>Authors and Contributors</h3>
+
+<p>Mahesh Asolkar (<a href="https://github.com/asolkar" class="user-mention">@asolkar</a>)</p>
+
+<h3>Support or Contact</h3>
+
+<ul>
+<li>You can use <a href="http://groups.google.com/group/empty-em-support">Empty 'em Support Google Group</a> to seek support, provide feedback or point out bugs.</li>
+<li>You can also write a review on <a href="https://addons.mozilla.org/en-US/thunderbird/addon/empty-em/">Add-ons for Thunderbird website</a>
+</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Empty 'em maintained by <a href="https://github.com/asolkar">asolkar</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-70930-7");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
