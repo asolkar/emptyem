@@ -113,6 +113,11 @@ var emptyem = {
   servers: null,
 
   //
+  // Number of servers
+  //
+  num_servers: null,
+
+  //
   // Timers and events. See documentation above for the use of these timers
   //
   trash_timer: null,
@@ -157,7 +162,10 @@ var emptyem = {
 
     this.account_manager = Cc["@mozilla.org/messenger/account-manager;1"]
                           .getService(Ci.nsIMsgAccountManager);
-    this.servers = this.account_manager.allServers;
+    this.servers = MailServices.accounts.allServers;
+    this.num_servers = (this.servers instanceof Ci.nsIArray)
+                        ? this.servers.length
+                        : this.servers.Count();
 
     //
     // Initialize timers
@@ -170,9 +178,9 @@ var emptyem = {
     //
     // Initialize to_empty arrays
     //
-    for (var i = 0; i < this.servers.length; ++i)
+    for each (current_server in fixIterator(this.servers,
+                                            Ci.nsIMsgIncomingServer))
     {
-      var current_server = this.servers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       this.to_empty_junk[current_server.prettyName] = false;
       this.to_empty_trash[current_server.prettyName] = false;
     }
@@ -295,10 +303,9 @@ var emptyem = {
     emptyem.onMenuEmptyTrashJunkCommand(e);
   },
   empty_all_junk_folders: function () {
-    for (var i = 0; i < this.servers.length; ++i)
+    for each (current_server in fixIterator(this.servers,
+                                            Ci.nsIMsgIncomingServer))
     {
-      var current_server = this.servers.queryElementAt(i, Ci.nsIMsgIncomingServer);
-
       //
       // Deal with Junk folders only if selected
       //
@@ -336,19 +343,18 @@ var emptyem = {
     //
     // Wait for all Junk folders to be emptied, then deal with Trash folders
     //
-    for (var i = 0; i < this.servers.length; ++i)
+    for each (current_server in fixIterator(this.servers,
+                                            Ci.nsIMsgIncomingServer))
     {
-      var current_server = this.servers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       if (this.to_empty_junk[current_server.prettyName] == true) {
         all_junk_gone = false;
       }
     }
     if (all_junk_gone == true) {
       this.debug_message("All junk gone. Now cleaning Trash");
-      for (var i = 0; i < this.servers.length; ++i)
+      for each (current_server in fixIterator(this.servers,
+                                              Ci.nsIMsgIncomingServer))
       {
-        var current_server = this.servers.queryElementAt(i, Ci.nsIMsgIncomingServer);
-
         if (this.select_trash_delete) {
           var tagged_folder = current_server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
@@ -390,9 +396,9 @@ var emptyem = {
     //
     // Wait for all Trash folders to be emptied, then declare done
     //
-    for (var i = 0; i < this.servers.length; ++i)
+    for each (current_server in fixIterator(this.servers,
+                                            Ci.nsIMsgIncomingServer))
     {
-      var current_server = this.servers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       server_types += " " + current_server.type;
       if (this.to_empty_trash[current_server.prettyName] == true) {
         all_trash_gone = false;
@@ -403,15 +409,14 @@ var emptyem = {
       //
       // Generate an alert after everything is done
       //
-      var num_servers = this.servers.length-1;
-
       if (this.disable_done_notification == false) {
         var alerts_service = Cc["@mozilla.org/alerts-service;1"]
                                .getService(Ci.nsIAlertsService);
         alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
                                             "Empty 'em",
-                                            "Emptied selected Trash and Junk folders from " + num_servers
-                                              + ((num_servers == 1) ? " server" : " servers"),
+                                            "Emptied selected Trash and Junk folders from "
+                                            + this.num_servers
+                                              + ((this.num_servers == 1) ? " server" : " servers"),
                                             false, "", null);
       }
 
