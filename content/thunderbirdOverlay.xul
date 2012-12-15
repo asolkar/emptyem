@@ -58,6 +58,6 @@
     label="&emptyemToolbar.label;"
     tooltiptext="&emptyemToolbar.tooltip;"
     oncommand="emptyem.onToolbarEmptyTrashJunkButtonCommand(event)"
-    class="toolbarbutton-empty-trash-junk chromeclass-toolbar-additional"/>
+    class="toolbarbutton-1 chromeclass-toolbar-additional"/>
   </toolbarpalette>
 </overlay>
