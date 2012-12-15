@@ -1,7 +1,7 @@
 Empty 'em
 =========
 
-This is a simple Thunderbird extension that empties all _Junk_ and _Trash_ folders. The extension provides a menu item (`Tools` -> `Empty Junk & Trash`) and a toolbar button to do so.
+This is a simple Thunderbird extension that empties all _Junk_ and _Trash_ folders. The extension provides a menu item (`Tools` -> `Empty 'em`) and a toolbar button to do so.
 
 Background
 ----------
