@@ -23,3 +23,7 @@
 <!ENTITY disabledonenotification.label "Disable done notification">
 <!ENTITY disabledonenotification.description "Check this box to disable notification that appears after all configured folders have been emptied">
 <!ENTITY disabledonenotification.accesskey "N">
+
+<!ENTITY alsocompact.label "Also compact emptied folders">
+<!ENTITY alsocompact.description "Also compact the folder that was emptied">
+<!ENTITY alsocompact.accesskey "C">

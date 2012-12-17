@@ -86,6 +86,7 @@ var emptyem = {
   disable_done_notification: false,
   select_trash_delete: false,
   select_junk_delete: false,
+  also_compact: false,
 
   //
   // These arrays hold accounts whose Junk/Trash folders are registered to be
@@ -100,12 +101,6 @@ var emptyem = {
   // register callback on any change in any folder currently present in any
   // of the configured accounts in Thunderbird.
   mail_session: null,
-
-  //
-  // This is a handle to the 'account manager' in Thunderbird. It is used to gain
-  // access to properties of accounts configured in Thunderbird.
-  //
-  account_manager: null,
 
   //
   // An array of all configured servers
@@ -160,8 +155,6 @@ var emptyem = {
     this.mail_session = Cc["@mozilla.org/messenger/services/session;1"]
                         .getService(Ci.nsIMsgMailSession);
 
-    this.account_manager = Cc["@mozilla.org/messenger/account-manager;1"]
-                          .getService(Ci.nsIMsgAccountManager);
     this.servers = MailServices.accounts.allServers;
     this.num_servers = (this.servers instanceof Ci.nsIArray)
                         ? this.servers.length
@@ -242,6 +235,17 @@ var emptyem = {
                       + folder.server.prettyName + ") override = "
                       + this.override_delete_confirm);
     folder.emptyTrash(null, null);
+
+    //
+    // After deleting messages from the Junk folder, compact it if preferences
+    // say so
+    //
+    if (this.also_compact) {
+      this.debug_message("Compacting Trash folder ("
+                        + folder.prettiestName + " on "
+                        + folder.server.prettyName + ")");
+      folder.compact(null, null);
+    }
   },
   empty_junk_folder: function(folder) {
     this.debug_message("Emptying Junk from folder ("
@@ -258,6 +262,17 @@ var emptyem = {
     }
     if (junk_msgs.length) {
       folder.deleteMessages(junk_msgs, msgWindow, false, false, null, true);
+    }
+
+    //
+    // After deleting messages from the Junk folder, compact it if preferences
+    // say so
+    //
+    if (this.also_compact) {
+      this.debug_message("Compacting Junk folder ("
+                        + folder.prettiestName + " on "
+                        + folder.server.prettyName + ")");
+      folder.compact(null, null);
     }
   },
   onMenuEmptyTrashJunkCommand: function(e) {
@@ -279,13 +294,15 @@ var emptyem = {
       this.select_junk_delete = this.prefsb.getBoolPref("select_junk_delete");
       this.console_debug = this.prefsb.getBoolPref("console_debug");
       this.disable_done_notification = this.prefsb.getBoolPref("disable_done_notification");
+      this.also_compact = this.prefsb.getBoolPref("also_compact");
 
       this.debug_message("Prefs\n" +
                         "  override_delete_confirm = " + this.override_delete_confirm + "\n" +
                         "  console_debug = " + this.console_debug + "\n" +
                         "  disable_done_notification = " + this.disable_done_notification + "\n" +
                         "  select_trash_delete = " + this.select_trash_delete + "\n" +
-                        "  select_junk_delete = " + this.select_junk_delete);
+                        "  select_junk_delete = " + this.select_junk_delete + "\n" +
+                        "  also_compact = " + this.also_compact);
 
       this.debug_message("Activating FolderListener");
       this.mail_session.AddFolderListener(this.folder_listener, Ci.nsIFolderListener.event);

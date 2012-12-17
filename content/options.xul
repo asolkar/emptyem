@@ -50,6 +50,10 @@
             desc="&selectjunkdelete.description;"
             pref="extensions.emptyem.select_junk_delete"
             type="bool" />
+  <setting  title="&alsocompact.label;"
+            desc="&alsocompact.description;"
+            pref="extensions.emptyem.also_compact"
+            type="bool" />
   <setting  title="&consoledebug.label;"
             desc="&consoledebug.description;"
             pref="extensions.emptyem.console_debug"

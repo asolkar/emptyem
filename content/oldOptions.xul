@@ -57,6 +57,9 @@
       <preference id="disable_done_notification"
                   name="extensions.emptyem.disable_done_notification"
                   type="bool"/>
+      <preference id="also_compact"
+                  name="extensions.emptyem.also_compact"
+                  type="bool"/>
     </preferences>
 
     <groupbox>
@@ -73,6 +76,10 @@
                 preference="disable_done_notification"
                 label="&disabledonenotification.label;"
                 accesskey="&disabledonenotification.accesskey;"/>
+      <checkbox id="alsocompact"
+                preference="alsocompact"
+                label="&alsocompact.label;"
+                accesskey="&alsocompact.accesskey;"/>
       <groupbox>
         <caption label="&prefwindow.selectionheading;"/>
         <checkbox id="selecttrashdelete"
