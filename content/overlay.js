@@ -95,6 +95,14 @@ var emptyem = {
   //
   to_empty_junk: {},
   to_empty_trash: {},
+  to_compact_junk: {},
+  to_compact_trash: {},
+
+  //
+  // Debug
+  //
+  wait_timeout: 100,
+  wait_timeout_hit: false,
 
   //
   // This is a handle to the 'session' service of Thunderbird. It is used to
@@ -117,6 +125,7 @@ var emptyem = {
   //
   trash_timer: null,
   done_timer: null,
+  compact_timer: null,
 
   //
   // This event is used to indicate that all outstanding 'emptyJunk' operations
@@ -129,6 +138,15 @@ var emptyem = {
   },
   //
   // This event is used to indicate that all outstanding 'emptyTrash' operations
+  // are done and it is now time to compact all folders.
+  //
+  compact_event: {
+    notify: function(timer) {
+      emptyem.compact_all_folders();
+    }
+  },
+  //
+  // This event is used to indicate that all outstanding 'compact' operations
   // are done and it is now OK to signal that the extension is done.
   //
   done_event: {
@@ -167,6 +185,8 @@ var emptyem = {
                     .createInstance(Components.interfaces.nsITimer);
     done_timer = Cc["@mozilla.org/timer;1"]
                   .createInstance(Components.interfaces.nsITimer);
+    compact_timer = Cc["@mozilla.org/timer;1"]
+                  .createInstance(Components.interfaces.nsITimer);
 
     //
     // Initialize to_empty arrays
@@ -176,6 +196,8 @@ var emptyem = {
     {
       this.to_empty_junk[current_server.prettyName] = false;
       this.to_empty_trash[current_server.prettyName] = false;
+      this.to_compact_junk[current_server.prettyName] = false;
+      this.to_compact_trash[current_server.prettyName] = false;
     }
 
     this.folder_listener.init(emptyem);
@@ -235,17 +257,6 @@ var emptyem = {
                       + folder.server.prettyName + ") override = "
                       + this.override_delete_confirm);
     folder.emptyTrash(null, null);
-
-    //
-    // After deleting messages from the Junk folder, compact it if preferences
-    // say so
-    //
-    if (this.also_compact) {
-      this.debug_message("Compacting Trash folder ("
-                        + folder.prettiestName + " on "
-                        + folder.server.prettyName + ")");
-      folder.compact(null, null);
-    }
   },
   empty_junk_folder: function(folder) {
     this.debug_message("Emptying Junk from folder ("
@@ -262,17 +273,6 @@ var emptyem = {
     }
     if (junk_msgs.length) {
       folder.deleteMessages(junk_msgs, msgWindow, false, false, null, true);
-    }
-
-    //
-    // After deleting messages from the Junk folder, compact it if preferences
-    // say so
-    //
-    if (this.also_compact) {
-      this.debug_message("Compacting Junk folder ("
-                        + folder.prettiestName + " on "
-                        + folder.server.prettyName + ")");
-      folder.compact(null, null);
     }
   },
   onMenuEmptyTrashJunkCommand: function(e) {
@@ -307,8 +307,9 @@ var emptyem = {
       this.debug_message("Activating FolderListener");
       this.mail_session.AddFolderListener(this.folder_listener, Ci.nsIFolderListener.event);
 
+      this.wait_timeout = 100;
+
       this.empty_all_junk_folders(this.servers);
-      this.empty_all_trash_folders(this.servers);
     }
     catch(ex)
     {
@@ -333,7 +334,8 @@ var emptyem = {
         // Proceed only if above returns a non-null value
         //
         if (tagged_folder == null) {
-          this.debug_message("Junk folder probably not configured. Skipping it...");
+          this.debug_message("Junk folder probably not configured on "
+                              + current_server.prettyName + ". Skipping it...");
         } else {
           var junk_folder = tagged_folder.QueryInterface(Ci.nsIMsgFolder);
           junk_folder.updateFolder(null);
@@ -353,6 +355,7 @@ var emptyem = {
         }
       }
     }
+    this.empty_all_trash_folders(this.servers);
   },
   empty_all_trash_folders: function () {
     var all_junk_gone = true;
@@ -379,7 +382,8 @@ var emptyem = {
           // Proceed only if above returns a non-null value
           //
           if (tagged_folder == null) {
-            this.debug_message("Trash folder probably not configured. Skipping it...");
+            this.debug_message("Trash folder probably not configured on "
+                                + current_server.prettyName + ". Skipping it...");
           } else {
             var trash_folder = tagged_folder.QueryInterface(Ci.nsIMsgFolder);
             trash_folder.updateFolder(null);
@@ -397,7 +401,7 @@ var emptyem = {
           }
         }
       }
-      this.say_all_done();
+      this.compact_all_folders();
     } else {
       this.debug_message("All junk not trashed yet. Waiting to empty trash");
       trash_timer.initWithCallback(
@@ -406,8 +410,83 @@ var emptyem = {
         Ci.nsITimer.TYPE_ONE_SHOT);
     }
   },
-  say_all_done: function () {
+  compact_all_folders: function () {
     var all_trash_gone = true;
+
+    //
+    // Wait for all Trash folders to be emptied, then compact Trash/Junk folders
+    // we just emptied
+    //
+    for each (current_server in fixIterator(this.servers,
+                                            Ci.nsIMsgIncomingServer))
+    {
+      if (this.to_empty_trash[current_server.prettyName] == true) {
+        all_trash_gone = false;
+      }
+    }
+    if (all_trash_gone == true) {
+      this.debug_message("All Trash gone. Now compacting");
+      for each (current_server in fixIterator(this.servers,
+                                              Ci.nsIMsgIncomingServer))
+      {
+        if (this.also_compact) {
+          //
+          // After deleting messages from the Junk folder, compact it if preferences
+          // say so
+          //
+          var tagged_folder = current_server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
+          if (tagged_folder == null) {
+            this.debug_message("Junk folder probably not configured. Skipping it...");
+          } else {
+            var folder = tagged_folder.QueryInterface(Ci.nsIMsgFolder);
+            this.debug_message("Compacting Junk folder ("
+                              + folder.prettiestName + " on "
+                              + folder.server.prettyName + ")");
+            if (current_server.type == "imap") {
+              this.to_compact_junk[current_server.prettyName] = false;
+            } else {
+              this.to_compact_junk[current_server.prettyName] = true;
+              this.debug_message("Registered Junk on " + current_server.prettyName + " for compacting");
+            }
+            folder.compact(null, null);
+          }
+
+          //
+          // After deleting messages from the Trash folder, compact it if preferences
+          // say so
+          //
+          tagged_folder = current_server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+          if (tagged_folder == null) {
+            this.debug_message("Trash folder probably not configured. Skipping it...");
+          } else {
+            var folder = tagged_folder.QueryInterface(Ci.nsIMsgFolder);
+            this.debug_message("Compacting Trash folder ("
+                              + folder.prettiestName + " on "
+                              + folder.server.prettyName + ")");
+            if (current_server.type == "imap") {
+              this.to_compact_trash[current_server.prettyName] = false;
+            } else {
+              this.to_compact_trash[current_server.prettyName] = true;
+              this.debug_message("Registered Trash on " + current_server.prettyName + " for compacting");
+            }
+            folder.compact(null, null);
+          }
+          this.debug_message("To compact: " + current_server.prettyName
+            + " ct=" + this.to_compact_trash[current_server.prettyName]
+            + " cj=" + this.to_compact_junk[current_server.prettyName]);
+        }
+      }
+      this.say_all_done();
+    } else {
+      this.debug_message("All trash not trashed yet. Waiting to empty trash");
+      compact_timer.initWithCallback(
+        emptyem.compact_event,
+        1000,
+        Ci.nsITimer.TYPE_ONE_SHOT);
+    }
+  },
+  say_all_done: function () {
+    var all_compacted = true;
     var server_types = "";
 
     //
@@ -417,24 +496,40 @@ var emptyem = {
                                             Ci.nsIMsgIncomingServer))
     {
       server_types += " " + current_server.type;
-      if (this.to_empty_trash[current_server.prettyName] == true) {
-        all_trash_gone = false;
+      this.debug_message("Compacted? " + current_server.prettyName
+        + " ct=" + this.to_compact_trash[current_server.prettyName]
+        + " cj=" + this.to_compact_junk[current_server.prettyName]);
+      if ((this.to_compact_trash[current_server.prettyName] == true)
+          || (this.to_compact_junk[current_server.prettyName] == true)) {
+        all_compacted = false;
       }
     }
-    if (all_trash_gone == true) {
-      this.debug_message("All trash gone. Now declaring done");
+    this.wait_timeout --;
+    if (this.wait_timeout < 1) {
+      all_compacted = true;
+      this.wait_timeout_hit = true;
+    }
+    if (all_compacted == true) {
+      this.debug_message("All emptied folders compacted. Now declaring done");
       //
       // Generate an alert after everything is done
       //
       if (this.disable_done_notification == false) {
         var alerts_service = Cc["@mozilla.org/alerts-service;1"]
                                .getService(Ci.nsIAlertsService);
-        alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
-                                            "Empty 'em",
-                                            "Emptied selected Trash and Junk folders from "
-                                            + this.num_servers
-                                              + ((this.num_servers == 1) ? " server" : " servers"),
-                                            false, "", null);
+        if (this.wait_timeout_hit == false) {
+          alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
+                                              "Empty 'em",
+                                              "Emptied selected Trash and Junk folders from "
+                                              + this.num_servers
+                                                + ((this.num_servers == 1) ? " server" : " servers"),
+                                              false, "", null);
+        } else {
+          alerts_service.showAlertNotification("chrome://emptyem/skin/emptyem_icon.png",
+                                              "Empty 'em",
+                                              "Timed out trying to empty selected Trash and Junk folders",
+                                              false, "", null);
+        }
       }
 
       this.debug_message("Found " + this.servers.length + " servers of types: " + server_types);
@@ -442,7 +537,7 @@ var emptyem = {
       this.mail_session.RemoveFolderListener(this.folder_listener, Ci.nsIFolderListener.event);
       this.debug_message("Deactivated FolderListener");
     } else {
-      this.debug_message("All trash not trashed yet. Waiting to declare done");
+      this.debug_message("All folders not compacted yet. Waiting to declare done");
       done_timer.initWithCallback(
         emptyem.done_event,
         1000,
@@ -493,7 +588,8 @@ var emptyem = {
     OnItemEvent: function OnItemEvent(folder, the_event) {
       var event_type = the_event.toString();
       my_parent.debug_message("Listener - received folder event " + event_type +
-                              " folder " + folder.name +
+                              " folder " + folder.prettiestName +
+                              " on " + folder.server.prettyName +
                               "\n");
       if (event_type == "FolderLoaded") {
         if (folder.getFlag(Ci.nsMsgFolderFlags.Trash) == true) {
@@ -504,7 +600,7 @@ var emptyem = {
             my_parent.handle_trash_folder(folder);
             my_parent.to_empty_trash[folder.server.prettyName] = false;
           } else {
-            my_parent.debug_message("Listener unsolicited ("
+            my_parent.debug_message("Listener unsolicited FolderLoaded ("
                                     + folder.prettiestName + " on "
                                     + folder.server.prettyName + ")");
           }
@@ -517,7 +613,32 @@ var emptyem = {
             my_parent.handle_junk_folder(folder);
             my_parent.to_empty_junk[folder.server.prettyName] = false;
           } else {
-            my_parent.debug_message("Listener unsolicited ("
+            my_parent.debug_message("Listener unsolicited FolderLoaded ("
+                                    + folder.prettiestName + " on "
+                                    + folder.server.prettyName + ")");
+          }
+        }
+      } else if (event_type == "CompactCompleted") {
+        if (folder.getFlag(Ci.nsMsgFolderFlags.Trash) == true) {
+          if (my_parent.to_compact_trash[folder.server.prettyName] == true) {
+            my_parent.debug_message("Listener Emptying folder ("
+                                    + folder.prettiestName + " on "
+                                    + folder.server.prettyName + ")");
+            my_parent.to_compact_trash[folder.server.prettyName] = false;
+          } else {
+            my_parent.debug_message("Listener unsolicited CompactCompleted ("
+                                    + folder.prettiestName + " on "
+                                    + folder.server.prettyName + ")");
+          }
+        }
+        if (folder.getFlag(Ci.nsMsgFolderFlags.Junk) == true) {
+          if (my_parent.to_compact_junk[folder.server.prettyName] == true) {
+            my_parent.debug_message("Listener Emptying folder ("
+                                    + folder.prettiestName + " on "
+                                    + folder.server.prettyName + ")");
+            my_parent.to_compact_junk[folder.server.prettyName] = false;
+          } else {
+            my_parent.debug_message("Listener unsolicited CompactCompleted ("
                                     + folder.prettiestName + " on "
                                     + folder.server.prettyName + ")");
           }
